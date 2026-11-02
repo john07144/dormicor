@@ -1,0 +1,320 @@
+
+<div class="principal">
+
+  <!-- FILTROS DE MODALIDAD Y COLOR -->
+  <div class="filtros-productos">
+
+    <div class="filtro-modalidad">
+      <button
+        type="button"
+        [class.activo]="tipoActual === 'todos'"
+        (click)="filtrar('todos', colorActual)"
+      >
+        Todos
+      </button>
+
+      <button
+        type="button"
+        [class.activo]="tipoActual === 'contado'"
+        (click)="filtrar('contado', colorActual)"
+      >
+        Contado
+      </button>
+
+      <button
+        type="button"
+        [class.activo]="tipoActual === 'credito'"
+        (click)="filtrar('credito', colorActual)"
+      >
+        Crédito
+      </button>
+    </div>
+
+    <div class="filtro-color">
+      <label for="filtroColor">Filtrar por color:</label>
+
+      <select
+        id="filtroColor"
+        [value]="colorActual"
+        (change)="filtrar(tipoActual, $any($event.target).value)"
+      >
+        <option value="todos">Todos los colores</option>
+
+        <option
+          *ngFor="let color of colores"
+          [value]="color"
+        >
+          {{ color }}
+        </option>
+      </select>
+    </div>
+
+  </div>
+
+  <!-- LISTADO DE PRODUCTOS -->
+  <ng-container *ngIf="productosFiltrados$ | async as productosLista">
+
+    <div class="productos-grid">
+
+      <article
+        class="producto-card"
+        *ngFor="let producto of productosLista; trackBy: productosId"
+        [id]="'producto-' + producto.id"
+      >
+
+        <!-- IMAGEN PRINCIPAL -->
+        <div class="producto-imagen">
+
+          <img
+            [src]="obtenerImagenActiva(producto)"
+            [alt]="producto.nombre + (obtenerVarianteActiva(producto)?.color ? ' - ' + obtenerVarianteActiva(producto)?.color : '')"
+            loading="lazy"
+            (click)="verDetalle(producto.id)"
+          />
+
+          <!-- ETIQUETA DE DESCUENTO -->
+          <span
+            class="etiqueta-descuento"
+            *ngIf="producto.descuento > 0"
+          >
+            -{{ producto.descuento }}%
+          </span>
+
+        </div>
+
+        <!-- INFORMACIÓN DEL PRODUCTO -->
+        <div class="producto-info">
+
+          <h3>{{ producto.nombre }}</h3>
+
+          <p
+            class="categoria"
+            *ngIf="producto.categoria"
+          >
+            {{ producto.categoria }}
+          </p>
+
+          <p
+            class="descripcion"
+            *ngIf="producto.descripcion"
+          >
+            {{ producto.descripcion }}
+          </p>
+
+          <!-- SELECTOR DE COLORES -->
+          <div
+            class="selector-colores"
+            *ngIf="producto.variantesColor?.length > 0"
+          >
+
+            <p class="texto-color">
+              Color:
+              <strong>
+                {{ obtenerVarianteActiva(producto)?.color || 'Sin especificar' }}
+              </strong>
+            </p>
+
+            <div class="opciones-colores">
+
+              <button
+                type="button"
+                class="opcion-color"
+                *ngFor="let variante of producto.variantesColor; let i = index"
+                [class.seleccionado]="esVarianteActiva(producto, i)"
+                [attr.aria-label]="'Seleccionar color ' + variante.color"
+                [attr.aria-pressed]="esVarianteActiva(producto, i)"
+                [title]="variante.color"
+                [style.background-color]="obtenerColorCSS(variante.color)"
+                (click)="seleccionarColor(producto, i)"
+              >
+                <img
+                  [src]="variante.imagen || variante.imagenes[0]"
+                  [alt]="variante.color"
+                  loading="lazy"
+                />
+              </button>
+
+            </div>
+
+          </div>
+
+          <!-- MINIATURAS DE LA VARIANTE SELECCIONADA -->
+          <div
+            class="miniaturas-producto"
+            *ngIf="obtenerImagenesActivas(producto).length > 1"
+          >
+
+            <button
+              type="button"
+              class="miniatura"
+              *ngFor="let imagen of obtenerImagenesActivas(producto)"
+              [class.seleccionada]="obtenerImagenActiva(producto) === imagen"
+              [attr.aria-label]="'Ver otra imagen de ' + producto.nombre"
+              (click)="seleccionarImagen(producto, imagen)"
+            >
+              <img
+                [src]="imagen"
+                [alt]="producto.nombre"
+                loading="lazy"
+              />
+            </button>
+
+          </div>
+
+          <!-- MODALIDADES DE PAGO -->
+          <div class="modalidades-pago">
+
+            <button
+              type="button"
+              *ngIf="producto.vendeContado"
+              [class.activo]="obtenerModalidad(producto) === 'contado'"
+              (click)="seleccionarModalidad(producto, 'contado')"
+            >
+              Contado
+            </button>
+
+            <button
+              type="button"
+              *ngIf="producto.vendeCredito"
+              [class.activo]="obtenerModalidad(producto) === 'credito'"
+              (click)="seleccionarModalidad(producto, 'credito')"
+            >
+              Crédito
+            </button>
+
+          </div>
+
+          <!-- PRECIOS -->
+          <div class="precios-producto">
+
+            <!-- PRECIO DE CONTADO -->
+            <ng-container
+              *ngIf="obtenerModalidad(producto) === 'contado' && producto.vendeContado"
+            >
+
+              <p class="etiqueta-precio">
+                Precio de contado
+              </p>
+
+              <p
+                class="precio-anterior"
+                *ngIf="producto.descuento > 0"
+              >
+                {{ precioOriginal(producto) | currency:'COP':'symbol-narrow':'1.0-0' }}
+              </p>
+
+              <p class="precio-actual">
+                {{ precioFinal(producto, 'contado') | currency:'COP':'symbol-narrow':'1.0-0' }}
+              </p>
+
+            </ng-container>
+
+            <!-- PRECIO A CRÉDITO -->
+            <ng-container
+              *ngIf="obtenerModalidad(producto) === 'credito' && producto.vendeCredito"
+            >
+
+              <p class="etiqueta-precio">
+                Precio a crédito
+              </p>
+
+              <p class="precio-actual">
+                {{ precioFinal(producto, 'credito') | currency:'COP':'symbol-narrow':'1.0-0' }}
+              </p>
+
+              <!-- CUOTA INICIAL -->
+              <p
+                class="dato-financiacion"
+                *ngIf="producto.inicial > 0"
+              >
+                Inicial:
+                {{ producto.inicial | currency:'COP':'symbol-narrow':'1.0-0' }}
+              </p>
+
+              <!-- FRECUENCIAS DE PAGO -->
+              <div
+                class="frecuencias-pago"
+                *ngIf="producto.quincenal > 0 || producto.mensual > 0"
+              >
+
+                <button
+                  type="button"
+                  *ngIf="producto.quincenal > 0"
+                  [class.activo]="obtenerFrecuencia(producto) === 'quincenal'"
+                  (click)="seleccionarFrecuencia(producto, 'quincenal')"
+                >
+                  Quincenal
+                </button>
+
+                <button
+                  type="button"
+                  *ngIf="producto.mensual > 0"
+                  [class.activo]="obtenerFrecuencia(producto) === 'mensual'"
+                  (click)="seleccionarFrecuencia(producto, 'mensual')"
+                >
+                  Mensual
+                </button>
+
+              </div>
+
+              <!-- VALOR DE LA CUOTA -->
+              <p
+                class="valor-cuota"
+                *ngIf="obtenerValorCuota(producto) > 0"
+              >
+                Cuota {{ obtenerFrecuencia(producto) }}:
+                {{ obtenerValorCuota(producto) | currency:'COP':'symbol-narrow':'1.0-0' }}
+              </p>
+
+              <!-- NÚMERO DE CUOTAS -->
+              <p
+                class="numero-cuotas"
+                *ngIf="obtenerNumeroCuotas(producto) > 0"
+              >
+                Número de cuotas:
+                {{ obtenerNumeroCuotas(producto) }}
+              </p>
+
+            </ng-container>
+
+          </div>
+
+          <!-- BOTONES DE ACCIÓN -->
+          <div class="acciones-producto">
+
+            <button
+              type="button"
+              class="btn-detalle"
+              (click)="verDetalle(producto.id)"
+            >
+              Ver producto
+            </button>
+
+            <a
+              class="btn-whatsapp"
+              [href]="obtenerLinkWhatsApp(producto)"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Consultar por WhatsApp
+            </a>
+
+          </div>
+
+        </div>
+
+      </article>
+
+    </div>
+
+    <!-- MENSAJE CUANDO NO HAY PRODUCTOS -->
+    <div
+      class="sin-productos"
+      *ngIf="productosLista.length === 0"
+    >
+      <p>No se encontraron productos con esos filtros.</p>
+    </div>
+
+  </ng-container>
+
+</div>

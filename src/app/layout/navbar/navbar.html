@@ -1,0 +1,71 @@
+
+<header class="header">
+
+  <div class="nav-container">
+
+    <!-- LOGO -->
+    <div class="nav-left">
+      <a routerLink="/" class="logos">
+        <img src="assets/img/dormicor.png" alt="Logo DormiCor" class="logo-img">
+        <span class="logo">DormiCor</span>
+      </a>
+    </div>
+
+    <!-- NAVEGACIÓN -->
+    <nav class="nav-center">
+      <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        Inicio
+      </a>
+
+      <a routerLink="/productoss" routerLinkActive="active">
+        Productos
+      </a>
+    </nav>
+
+    <!-- BUSCADOR DESKTOP -->
+    <div class="buscador-top">
+      <i class="bx bx-search"></i>
+
+      <input
+        type="text"
+        placeholder="Buscar camas, colchones..."
+        (input)="buscar($any($event.target).value)"
+      >
+
+      <a routerLink="/productoss" aria-label="Ver productos">
+        <i class="bx bx-store"></i>
+      </a>
+    </div>
+
+    <!-- ICONOS -->
+    <div class="nav-right">
+
+      <a routerLink="/carrito" aria-label="Carrito">
+        <i class="bx bx-cart"></i>
+      </a>
+
+      <a routerLink="/login" aria-label="Mi cuenta">
+        <i class="bx bx-user"></i>
+      </a>
+
+    </div>
+
+  </div>
+
+  <!-- BUSCADOR MOBILE -->
+  <div class="buscador-mobile">
+    <i class="bx bx-search"></i>
+
+    <input
+      type="text"
+      placeholder="Buscar camas, colchones..."
+      (input)="buscar($any($event.target).value)"
+    >
+
+    <a routerLink="/productoss" aria-label="Ver productos">
+      <i class="bx bx-store"></i>
+    </a>
+  </div>
+
+</header>
+
