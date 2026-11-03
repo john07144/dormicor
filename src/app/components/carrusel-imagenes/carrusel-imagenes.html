@@ -1,0 +1,225 @@
+
+<div class="alkosto-container">
+
+  <div class="grid-banners">
+
+    <ng-container *ngFor="let banner of banners; trackBy: trackById">
+
+      <!-- BANNER 1 GRANDE NARANJA -->
+      <a
+        *ngIf="banner.id === 1"
+        [routerLink]="banner.link"
+        class="banner b1">
+
+        <div class="b1-text">
+
+          <h2>{{ banner.producto.nombre }}</h2>
+
+          <p class="descripcion-producto">
+            {{ banner.producto.descripcion }}
+          </p>
+
+          <div
+            class="hasta"
+            *ngIf="banner.producto.descuento > 0">
+
+            HASTA
+
+            <b>
+              {{ banner.producto.descuento }}%
+              <span>DTO</span>
+            </b>
+
+          </div>
+
+          <div class="precio">
+            {{ banner.precio | currency:'COP':'symbol':'1.0-0' }}
+          </div>
+
+          <small class="modalidad-precio">
+            {{ banner.tipoPrecio === 'credito' ? 'A CRÉDITO' : 'DE CONTADO' }}
+          </small>
+
+          <div
+            class="datos-credito"
+            *ngIf="banner.tipoPrecio === 'credito'">
+
+            <span>
+              Inicial:
+              <strong>
+                {{ banner.producto.inicial | currency:'COP':'symbol':'1.0-0' }}
+              </strong>
+            </span>
+
+            <span>
+              Quincenal:
+              <strong>
+                {{ banner.producto.quincenal | currency:'COP':'symbol':'1.0-0' }}
+              </strong>
+            </span>
+
+          </div>
+
+          <span class="btn-white">¡Conócelo!</span>
+
+        </div>
+
+        <img
+          [src]="banner.img"
+          class="img-b1"
+          [alt]="banner.producto.nombre">
+
+      </a>
+
+
+      <!-- BANNERS 2 Y 3 AZULES -->
+      <a
+        *ngIf="banner.id === 2 || banner.id === 3"
+        [routerLink]="banner.link"
+        class="banner"
+        [ngClass]="'b' + banner.id">
+
+        <div class="info">
+
+          <p class="titulo">
+            {{ banner.producto.nombre }}
+          </p>
+
+          <p class="descripcion-producto">
+            {{ banner.producto.descripcion }}
+          </p>
+
+          <span
+            class="precio"
+            [class.amarillo]="banner.id === 3">
+
+            {{ banner.precio | currency:'COP':'symbol':'1.0-0' }}
+
+          </span>
+
+          <small class="modalidad-precio">
+            {{ banner.tipoPrecio === 'credito' ? 'A CRÉDITO' : 'DE CONTADO' }}
+          </small>
+
+          <div
+            class="datos-credito"
+            *ngIf="banner.tipoPrecio === 'credito'">
+
+            <span>
+              Inicial:
+              <strong>
+                {{ banner.producto.inicial | currency:'COP':'symbol':'1.0-0' }}
+              </strong>
+            </span>
+
+            <span>
+              Quincenal:
+              <strong>
+                {{ banner.producto.quincenal | currency:'COP':'symbol':'1.0-0' }}
+              </strong>
+            </span>
+
+          </div>
+
+        </div>
+
+        <img
+          [src]="banner.img"
+          class="prod-img"
+          [alt]="banner.producto.nombre">
+
+        <div
+          class="badge"
+          *ngIf="banner.producto.descuento > 0">
+
+          {{ banner.producto.descuento }}%
+          <span>DTO</span>
+
+        </div>
+
+      </a>
+
+
+      <!-- BANNER 4 LARGO NARANJA -->
+      <a
+        *ngIf="banner.id === 4"
+        [routerLink]="banner.link"
+        class="banner b4">
+
+        <div class="info">
+
+          <p class="titulo">
+            {{ banner.producto.nombre }}
+          </p>
+
+          <p class="descripcion-producto">
+            {{ banner.producto.descripcion }}
+          </p>
+
+          <span class="precio blanco">
+            {{ banner.precio | currency:'COP':'symbol':'1.0-0' }}
+          </span>
+
+          <small class="modalidad-precio">
+            {{ banner.tipoPrecio === 'credito' ? 'A CRÉDITO' : 'DE CONTADO' }}
+          </small>
+
+          <div
+            class="datos-credito"
+            *ngIf="banner.tipoPrecio === 'credito'">
+
+            <span>
+              Inicial:
+              <strong>
+                {{ banner.producto.inicial | currency:'COP':'symbol':'1.0-0' }}
+              </strong>
+            </span>
+
+           
+
+          </div>
+
+        </div>
+
+        <img
+          [src]="banner.img"
+          class="prod-img-large"
+          [alt]="banner.producto.nombre">
+
+        <div
+          class="badge big"
+          *ngIf="banner.producto.descuento > 0">
+
+          {{ banner.producto.descuento }}%
+          <span>DTO</span>
+
+        </div>
+
+      </a>
+
+    </ng-container>
+
+  </div>
+
+  <p *ngIf="cargando" class="mensaje-cargando">
+    Cargando banners...
+  </p>
+
+  <div class="barra-azul">
+
+    <a href="/puntos">🎁 Gana 50 <small>›</small></a>
+
+    <a href="/envios">🚚 Envío Gratis <small>en Risaralda ›</small></a>
+
+    <a href="/cambios"><b>30 DÍAS</b> Cambios <small>›</small></a>
+
+    <a href="/seguro">🛡️ Seguro gratis <small>›</small></a>
+
+    <a href="/exclusivos">📦 Productos exclusivos <small>›</small></a>
+
+    <a href="/empresas">🏢 Cliente empresarial <small>›</small></a>
+
+  </div>
+
+</div>
+

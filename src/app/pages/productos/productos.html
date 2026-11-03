@@ -40,10 +40,7 @@
       >
         <option value="todos">Todos los colores</option>
 
-        <option
-          *ngFor="let color of colores"
-          [value]="color"
-        >
+        <option *ngFor="let color of colores" [value]="color">
           {{ color }}
         </option>
       </select>
@@ -59,7 +56,7 @@
       <article
         class="producto-card"
         *ngFor="let producto of productosLista; trackBy: productosId"
-        [id]="'producto-' + producto.id"
+        [id]="'producto-' + (producto.id ?? producto.docId)"
       >
 
         <!-- IMAGEN PRINCIPAL -->
@@ -69,7 +66,7 @@
             [src]="obtenerImagenActiva(producto)"
             [alt]="producto.nombre + (obtenerVarianteActiva(producto)?.color ? ' - ' + obtenerVarianteActiva(producto)?.color : '')"
             loading="lazy"
-            (click)="verDetalle(producto.id)"
+            (click)="verDetalle(producto.id ?? producto.docId)"
           />
 
           <!-- ETIQUETA DE DESCUENTO -->
@@ -87,17 +84,11 @@
 
           <h3>{{ producto.nombre }}</h3>
 
-          <p
-            class="categoria"
-            *ngIf="producto.categoria"
-          >
+          <p class="categoria" *ngIf="producto.categoria">
             {{ producto.categoria }}
           </p>
 
-          <p
-            class="descripcion"
-            *ngIf="producto.descripcion"
-          >
+          <p class="descripcion" *ngIf="producto.descripcion">
             {{ producto.descripcion }}
           </p>
 
@@ -138,7 +129,7 @@
 
           </div>
 
-          <!-- MINIATURAS DE LA VARIANTE SELECCIONADA -->
+          <!-- MINIATURAS -->
           <div
             class="miniaturas-producto"
             *ngIf="obtenerImagenesActivas(producto).length > 1"
@@ -231,7 +222,7 @@
                 {{ producto.inicial | currency:'COP':'symbol-narrow':'1.0-0' }}
               </p>
 
-              <!-- FRECUENCIAS DE PAGO -->
+              <!-- FRECUENCIAS -->
               <div
                 class="frecuencias-pago"
                 *ngIf="producto.quincenal > 0 || producto.mensual > 0"
@@ -257,7 +248,7 @@
 
               </div>
 
-              <!-- VALOR DE LA CUOTA -->
+              <!-- VALOR DE CUOTA -->
               <p
                 class="valor-cuota"
                 *ngIf="obtenerValorCuota(producto) > 0"
@@ -285,9 +276,17 @@
             <button
               type="button"
               class="btn-detalle"
-              (click)="verDetalle(producto.id)"
+              (click)="verDetalle(producto.id ?? producto.docId)"
             >
               Ver producto
+            </button>
+
+            <button
+              type="button"
+              class="btn-agregar-carrito"
+              (click)="agregarAlCarrito(producto)"
+            >
+              🛒 Añadir al carrito
             </button>
 
             <a
@@ -307,7 +306,7 @@
 
     </div>
 
-    <!-- MENSAJE CUANDO NO HAY PRODUCTOS -->
+    <!-- SIN PRODUCTOS -->
     <div
       class="sin-productos"
       *ngIf="productosLista.length === 0"

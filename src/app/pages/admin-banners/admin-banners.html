@@ -1,0 +1,307 @@
+
+<div class="admin-banners">
+
+  <!-- ENCABEZADO -->
+  <div class="encabezado">
+    <div>
+      <h1>Administración de banners</h1>
+      <p>Administra los productos que aparecen en los banners de DormiCor.</p>
+    </div>
+
+    <a routerLink="/admin" class="volver">
+      Volver al panel
+    </a>
+  </div>
+
+  <!-- FORMULARIO -->
+  <section class="formulario">
+
+    <div class="titulo-formulario">
+      <h2>
+        {{ bannerEditando !== null ? 'Editar banner' : 'Agregar banner' }}
+      </h2>
+
+      <span>
+        {{ bannerEditando !== null ? 'Modificando banner' : 'Nuevo registro' }}
+      </span>
+    </div>
+
+    <div class="campos">
+
+      <!-- UBICACIÓN -->
+      <div class="campo">
+        <label>Ubicación del banner</label>
+
+        <select
+          [(ngModel)]="bannerId"
+          name="bannerId"
+          [disabled]="bannerEditando !== null">
+
+          <option [ngValue]="1">Banner 1</option>
+          <option [ngValue]="2">Banner 2</option>
+          <option [ngValue]="3">Banner 3</option>
+          <option [ngValue]="4">Banner 4</option>
+
+        </select>
+      </div>
+
+      <!-- PRODUCTO -->
+      <div class="campo">
+        <label>Seleccionar producto</label>
+
+        <select
+          [(ngModel)]="productoDocId"
+          name="productoDocId">
+
+          <option value="">Selecciona un producto</option>
+
+          <option
+            *ngFor="let producto of productos"
+            [value]="producto.docId">
+
+            {{ producto.nombre }}
+
+          </option>
+
+        </select>
+      </div>
+
+      <!-- MODALIDAD DEL PRECIO -->
+      <div class="campo">
+        <label>¿Qué precio quieres mostrar?</label>
+
+        <select
+          [(ngModel)]="tipoPrecio"
+          name="tipoPrecio">
+
+          <option
+            value="contado"
+            [disabled]="!obtenerProducto(productoDocId)?.vendeContado">
+            Precio de contado
+          </option>
+
+          <option
+            value="credito"
+            [disabled]="!obtenerProducto(productoDocId)?.vendeCredito">
+            Precio a crédito
+          </option>
+
+        </select>
+
+        <small>
+          Esta elección determina el precio que aparecerá en el banner.
+        </small>
+      </div>
+
+    </div>
+
+    <!-- VISTA PREVIA DEL PRODUCTO -->
+    <div
+      class="vista-previa"
+      *ngIf="obtenerProducto(productoDocId) as producto">
+
+      <img
+        [src]="obtenerImagen(producto)"
+        [alt]="producto.nombre">
+
+      <div class="datos-preview">
+
+        <span class="etiqueta-preview">PRODUCTO SELECCIONADO</span>
+
+        <h3>{{ producto.nombre }}</h3>
+
+        <p>
+          Modalidad:
+          <strong>
+            {{ tipoPrecio === 'contado' ? 'CONTADO' : 'A CRÉDITO' }}
+          </strong>
+        </p>
+
+        <p>
+          Precio:
+          <strong>
+            {{ obtenerPrecio(producto, tipoPrecio) | currency:'COP':'symbol':'1.0-0' }}
+          </strong>
+        </p>
+
+      </div>
+
+    </div>
+
+    <!-- ENLACE AUTOMÁTICO -->
+    <div class="campo campo-enlace" *ngIf="productoDocId">
+
+      <label>Destino del banner</label>
+
+      <input
+        type="text"
+        [value]="obtenerEnlace(productoDocId)"
+        readonly>
+
+      <small>
+        Este enlace se genera automáticamente con el producto seleccionado.
+      </small>
+
+    </div>
+
+    <!-- BOTONES -->
+    <div class="botones-formulario">
+
+      <button
+        class="btn-guardar"
+        (click)="guardar()"
+        [disabled]="guardando">
+
+        {{
+          guardando
+            ? 'Guardando...'
+            : (bannerEditando !== null ? 'Actualizar banner' : 'Guardar banner')
+        }}
+
+      </button>
+
+      <button
+        *ngIf="bannerEditando !== null"
+        class="btn-cancelar"
+        (click)="limpiarFormulario()"
+        [disabled]="guardando">
+
+        Cancelar edición
+
+      </button>
+
+      <button
+        *ngIf="bannerEditando === null"
+        class="btn-limpiar"
+        (click)="limpiarFormulario()">
+
+        Limpiar
+
+      </button>
+
+    </div>
+
+    <p class="mensaje" *ngIf="mensaje">
+      {{ mensaje }}
+    </p>
+
+  </section>
+
+  <!-- TABLA DE BANNERS GUARDADOS -->
+  <section class="tabla-seccion">
+
+    <div class="titulo-tabla">
+      <div>
+        <h2>Banners guardados</h2>
+        <p>Consulta y administra tus banners registrados.</p>
+      </div>
+
+      <span class="contador">
+        {{ banners.length }} / 4 banners
+      </span>
+    </div>
+
+    <div class="tabla-contenedor">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Banner</th>
+            <th>Producto</th>
+            <th>Imagen</th>
+            <th>Modalidad</th>
+            <th>Precio</th>
+            <th>Destino</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let banner of banners">
+
+            <td>
+              <strong>Banner {{ banner.id }}</strong>
+            </td>
+
+            <td>
+              {{
+                obtenerProducto(banner.productoDocId)?.nombre
+                || 'Producto no encontrado'
+              }}
+            </td>
+
+            <td>
+              <img
+                *ngIf="obtenerProducto(banner.productoDocId) as producto"
+                class="imagen-tabla"
+                [src]="banner.imagen || obtenerImagen(producto)"
+                [alt]="producto.nombre">
+            </td>
+
+            <td>
+              <strong>
+                {{ banner.tipoPrecio === 'credito' ? 'A crédito' : 'Contado' }}
+              </strong>
+            </td>
+
+            <td>
+              <ng-container
+                *ngIf="obtenerProducto(banner.productoDocId) as producto">
+
+                {{
+                  obtenerPrecio(producto, banner.tipoPrecio || 'contado')
+                  | currency:'COP':'symbol':'1.0-0'
+                }}
+
+              </ng-container>
+            </td>
+
+            <td>
+              <span class="destino">
+                /productos/{{ banner.productoDocId }}
+              </span>
+            </td>
+
+            <td>
+              <div class="acciones-tabla">
+
+                <button
+                  class="btn-editar"
+                  (click)="editar(banner)"
+                  [disabled]="guardando">
+
+                  Editar
+
+                </button>
+
+                <button
+                  class="btn-eliminar"
+                  (click)="eliminar(banner)"
+                  [disabled]="guardando">
+
+                  Eliminar
+
+                </button>
+
+              </div>
+            </td>
+
+          </tr>
+
+          <tr *ngIf="banners.length === 0">
+            <td colspan="7" class="vacio">
+              Todavía no tienes banners guardados.
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+</div>

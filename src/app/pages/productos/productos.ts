@@ -2,8 +2,11 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
-import { ProductosService } from '../../services/producto.service';
-import { SearchService } from '../../services/search.service';
+
+import { Productos1 } from '../../services/productos1';
+import { buscador } from '../../services/buscador';
+import { Carrito } from '../../services/carrito';
+
 import {
   BehaviorSubject,
   combineLatest,
@@ -20,15 +23,16 @@ interface VarianteColor {
   imagenes: string[];
   imagenesTexto?: string;
 }
+
 @Component({
   selector: 'app-productos',
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './productos.html',
-  styleUrl: './productos.css',
+  styleUrl: './productos.css'
 })
-export class Productos {
-  
+export class Productos implements OnInit {
+
   productos: any[] = [];
   colores: string[] = [];
   slug: string | null = null;
@@ -47,16 +51,15 @@ export class Productos {
   productosFiltrados$!: Observable<any[]>;
 
   constructor(
-    private productosService: ProductosService,
+    private productos1: Productos1,
     private route: ActivatedRoute,
-    private searchService: SearchService,
-    private router: Router
+    private buscador: buscador,
+    private router: Router,
+    private carrito: Carrito
   ) {}
 
   ngOnInit(): void {
 
-    // Lee la categoría desde /categoria/:slug.
-    // También admite una categoría enviada por query params.
     this.route.paramMap.subscribe(params => {
       this.slug =
         params.get('slug') ||
@@ -66,11 +69,8 @@ export class Productos {
     });
 
     this.route.queryParamMap.subscribe(params => {
-      // Permite usar también ?categoria=colchon o ?slug=colchon.
-      if (
-        params.has('categoria') ||
-        params.has('slug')
-      ) {
+
+      if (params.has('categoria') || params.has('slug')) {
         this.slug =
           params.get('categoria') ||
           params.get('slug');
@@ -89,7 +89,8 @@ export class Productos {
       }
     });
 
-    this.productosService.getProductos().subscribe({
+    this.productos1.getProductos().subscribe({
+
       next: data => {
 
         this.productos = data.map(p => {
@@ -125,6 +126,7 @@ export class Productos {
           const variantesColor: VarianteColor[] =
             Array.isArray(p.variantesColor) &&
             p.variantesColor.length > 0
+
               ? p.variantesColor.map((v: any) => {
 
                   const imagenPrincipal =
@@ -152,6 +154,7 @@ export class Productos {
                       .join(', ')
                   };
                 })
+
               : [{
                   color: String(p.color ?? '').trim(),
                   imagen: String(p.imagen ?? '').trim(),
@@ -207,7 +210,7 @@ export class Productos {
 
         this.productos.forEach(p => {
 
-          const id = String(p.id);
+          const id = String(p.id ?? p.docId);
 
           this.varianteSeleccionada[id] = 0;
 
@@ -251,19 +254,31 @@ export class Productos {
           )
         ).filter(Boolean);
 
-        // Actualiza la lista cuando llegan los productos de Firebase.
         this.actualizarProductosFiltrados();
+
+        console.log('========== REVISIÓN DE IMÁGENES ==========');
+
+        this.productos.forEach(p => {
+          console.log('PRODUCTO:', p.nombre);
+          console.log('IMAGEN PRINCIPAL:', p.imagen);
+          console.log('IMAGEN ACTIVA:', p.imagenActiva);
+          console.log('IMÁGENES:', p.imagenes);
+          console.log('VARIANTES:', p.variantesColor);
+          console.log(
+            'IMAGEN QUE SE MUESTRA:',
+            this.obtenerImagenActiva(p)
+          );
+          console.log('------------------------------------------');
+        });
 
         setTimeout(() => this.restaurarProducto(), 100);
       },
+
       error: err => console.error('Error cargando productos', err)
+
     });
   }
 
-  /**
-   * Normaliza nombres para comparar categorías
-   * sin distinguir mayúsculas, tildes, guiones o espacios repetidos.
-   */
   private normalizarCategoria(valor: unknown): string {
     return String(valor ?? '')
       .trim()
@@ -274,11 +289,8 @@ export class Productos {
       .replace(/\s+/g, ' ');
   }
 
-  /**
-   * Convierte el nombre del color guardado en Firebase
-   * a un color CSS para mostrarlo en el selector.
-   */
   obtenerColorCSS(color: string): string {
+
     const nombre = (color || '')
       .trim()
       .toLowerCase()
@@ -310,20 +322,17 @@ export class Productos {
     return coloresCSS[nombre] || '#d9d9d9';
   }
 
-  /**
-   * Mantiene activos los filtros de búsqueda, modalidad,
-   * color y categoría.
-   */
   private actualizarProductosFiltrados(): void {
 
-    this.productosFiltrados$ = combineLatest([
-      this.searchService.search$,
-      this.tipoSeleccionado$,
-      this.colorSeleccionado$
-    ]).pipe(
-      map(([textoBusqueda, tipo, color]) => {
+    this.productosFiltrados$ = combineLatest({
+      textoBusqueda: this.buscador.search$,
+      tipo: this.tipoSeleccionado$,
+      color: this.colorSeleccionado$
+    }).pipe(
 
-        const txt = (textoBusqueda || '')
+      map(({ textoBusqueda, tipo, color }) => {
+
+        const txt = String(textoBusqueda ?? '')
           .toLowerCase()
           .trim();
 
@@ -359,34 +368,22 @@ export class Productos {
 
           const textoOk =
             !txt ||
-            String(p.nombre ?? '')
-              .toLowerCase()
-              .includes(txt) ||
-            String(p.categoria ?? '')
-              .toLowerCase()
-              .includes(txt) ||
-            String(p.tipo ?? '')
-              .toLowerCase()
-              .includes(txt) ||
-            String(p.descripcion ?? '')
-              .toLowerCase()
-              .includes(txt) ||
+            String(p.nombre ?? '').toLowerCase().includes(txt) ||
+            String(p.categoria ?? '').toLowerCase().includes(txt) ||
+            String(p.tipo ?? '').toLowerCase().includes(txt) ||
+            String(p.descripcion ?? '').toLowerCase().includes(txt) ||
             coloresProducto.some(c =>
               String(c ?? '').toLowerCase().includes(txt)
             );
 
-          return (
-            categoriaOk &&
-            tipoOk &&
-            colorOk &&
-            textoOk
-          );
+          return categoriaOk && tipoOk && colorOk && textoOk;
         });
       })
     );
   }
 
   private normalizarImagenesAntiguas(p: any): string[] {
+
     const principal = String(p.imagen ?? '').trim();
 
     const adicionales: string[] = Array.isArray(p.imagenes)
@@ -403,6 +400,7 @@ export class Productos {
   }
 
   obtenerVarianteActiva(p: any): VarianteColor | null {
+
     const variantes: VarianteColor[] = p.variantesColor ?? [];
 
     if (!variantes.length) return null;
@@ -413,6 +411,7 @@ export class Productos {
   }
 
   seleccionarColor(p: any, indice: number): void {
+
     const variantes: VarianteColor[] = p.variantesColor ?? [];
 
     if (!variantes[indice]) return;
@@ -431,12 +430,14 @@ export class Productos {
   }
 
   esVarianteActiva(p: any, indice: number): boolean {
+
     return (
       (this.varianteSeleccionada[String(p.id)] ?? 0) === indice
     );
   }
 
   obtenerImagenesActivas(p: any): string[] {
+
     const variante = this.obtenerVarianteActiva(p);
 
     if (variante) {
@@ -451,7 +452,8 @@ export class Productos {
   }
 
   obtenerImagenActiva(p: any): string {
-    const id = String(p.id);
+
+    const id = String(p.id ?? p.docId);
     const imagenElegida = this.imagenSeleccionada[id];
     const imagenes = this.obtenerImagenesActivas(p);
 
@@ -463,12 +465,15 @@ export class Productos {
   }
 
   seleccionarImagen(p: any, imagen: string): void {
-    const id = String(p.id);
+
+    const id = String(p.id ?? p.docId);
+
     this.imagenSeleccionada[id] = imagen;
     p.imagenActiva = imagen;
   }
 
   filtrar(tipo: string, color: string): void {
+
     this.tipoSeleccionado$.next(tipo);
     this.colorSeleccionado$.next(color);
 
@@ -476,11 +481,9 @@ export class Productos {
     this.colorActual = color;
   }
 
-  seleccionarModalidad(
-    p: any,
-    modalidad: Modalidad
-  ): void {
-    const id = String(p.id);
+  seleccionarModalidad(p: any, modalidad: Modalidad): void {
+
+    const id = String(p.id ?? p.docId);
 
     if (modalidad === 'contado' && p.vendeContado) {
       this.modalidadProducto[id] = 'contado';
@@ -492,33 +495,33 @@ export class Productos {
   }
 
   obtenerModalidad(p: any): Modalidad {
-    const id = String(p.id);
+
+    const id = String(p.id ?? p.docId);
 
     return this.modalidadProducto[id] ??
       (p.vendeCredito ? 'credito' : 'contado');
   }
 
-  seleccionarFrecuencia(
-    p: any,
-    frecuencia: Frecuencia
-  ): void {
+  seleccionarFrecuencia(p: any, frecuencia: Frecuencia): void {
+
     if (
       frecuencia === 'quincenal' &&
       Number(p.quincenal) > 0
     ) {
-      this.frecuenciaProducto[String(p.id)] = 'quincenal';
+      this.frecuenciaProducto[String(p.id ?? p.docId)] = 'quincenal';
     }
 
     if (
       frecuencia === 'mensual' &&
       Number(p.mensual) > 0
     ) {
-      this.frecuenciaProducto[String(p.id)] = 'mensual';
+      this.frecuenciaProducto[String(p.id ?? p.docId)] = 'mensual';
     }
   }
 
   obtenerFrecuencia(p: any): Frecuencia {
-    const id = String(p.id);
+
+    const id = String(p.id ?? p.docId);
     const seleccionada = this.frecuenciaProducto[id];
 
     if (
@@ -541,12 +544,14 @@ export class Productos {
   }
 
   obtenerValorCuota(p: any): number {
+
     return this.obtenerFrecuencia(p) === 'mensual'
       ? Number(p.mensual ?? 0)
       : Number(p.quincenal ?? 0);
   }
 
   obtenerNumeroCuotas(p: any): number {
+
     return this.obtenerFrecuencia(p) === 'mensual'
       ? Number(p.numeroCuotasMensual ?? 0)
       : Number(p.numeroCuotasQuincenal ?? 0);
@@ -561,6 +566,7 @@ export class Productos {
   }
 
   precioFinal(p: any, modalidad?: string): number {
+
     const modo =
       modalidad && modalidad !== 'todos'
         ? modalidad
@@ -583,6 +589,7 @@ export class Productos {
   }
 
   private formatearPrecio(valor: number): string {
+
     return Number(valor || 0).toLocaleString('es-CO', {
       style: 'currency',
       currency: 'COP',
@@ -591,6 +598,7 @@ export class Productos {
   }
 
   obtenerLinkWhatsApp(p: any): string {
+
     const modalidad = this.obtenerModalidad(p);
     const precio = this.precioFinal(p, modalidad);
     const variante = this.obtenerVarianteActiva(p);
@@ -628,20 +636,58 @@ export class Productos {
       }
     }
 
-    return `https://wa.me/573137110232?text=${encodeURIComponent(mensaje)}`;
+    return `https://wa.me/573046637509?text=${encodeURIComponent(mensaje)}`;
+  }
+
+  // AGREGAR PRODUCTO AL CARRITO.
+  agregarAlCarrito(p: any): void {
+
+    const modalidad = this.obtenerModalidad(p);
+    const frecuencia = this.obtenerFrecuencia(p);
+    const variante = this.obtenerVarianteActiva(p);
+
+    const color = variante?.color || p.color || 'Sin especificar';
+
+    const id = String(p.id ?? p.docId ?? p.nombre);
+
+    const nuevoProducto = {
+      clave: `${id}-${modalidad}-${color}-${modalidad === 'credito' ? frecuencia : 'unico'}`,
+      id: p.id ?? p.docId,
+      nombre: p.nombre,
+      imagen: this.obtenerImagenActiva(p),
+      color,
+      modalidad,
+      precio: this.precioFinal(p, modalidad),
+      inicial: modalidad === 'credito' ? Number(p.inicial || 0) : 0,
+      frecuencia,
+      valorCuota: modalidad === 'credito'
+        ? this.obtenerValorCuota(p)
+        : 0,
+      numeroCuotas: modalidad === 'credito'
+        ? this.obtenerNumeroCuotas(p)
+        : 0,
+      cantidad: 1
+    };
+
+    this.carrito.agregarProducto(nuevoProducto);
+
+    alert('¡Producto agregado al carrito!');
   }
 
   verDetalle(id: number | string): void {
-    this.productosService.productoParaVolver = id as number;
+
+    this.productos1.productoParaVolver = Number(id);
+
     this.router.navigate(['/productos', id]);
   }
 
-  productosId(_index: number, item: any): number {
-    return item.id;
+  productosId(_index: number, item: any): number | string {
+    return item.id ?? item.docId;
   }
 
   restaurarProducto(): void {
-    const id = this.productosService.productoParaVolver;
+
+    const id = this.productos1.productoParaVolver;
 
     if (id == null) return;
 
@@ -649,15 +695,18 @@ export class Productos {
     const maxIntentos = 20;
 
     const buscarProducto = () => {
+
       const elemento = document.getElementById(`producto-${id}`);
 
       if (elemento) {
+
         elemento.scrollIntoView({
           behavior: 'auto',
           block: 'center'
         });
 
-        this.productosService.productoParaVolver = null;
+        this.productos1.productoParaVolver = null;
+
         return;
       }
 

@@ -1,0 +1,260 @@
+
+<div class="detalle-container" *ngIf="producto">
+
+  <!-- GALERÍA DE IMÁGENES -->
+  <div class="detalle-galeria">
+    <div class="miniaturas-vertical">
+
+      <button type="button" class="volver" (click)="volver()">
+        Volver
+      </button>
+
+      <img
+        *ngFor="let img of producto.imagenes || []"
+        [src]="img"
+        [alt]="producto.nombre"
+        loading="lazy"
+        (click)="cambiarImagen(producto, img)"
+        [class.activa]="img === producto.imagenActiva"
+      >
+
+    </div>
+
+    <!-- IMAGEN PRINCIPAL -->
+    <div class="imagen-principal">
+      <img
+        [src]="producto.imagenActiva || producto.imagen"
+        [alt]="producto.nombre"
+        loading="lazy"
+      >
+    </div>
+  </div>
+
+  <!-- INFORMACIÓN DEL PRODUCTO -->
+  <div class="detalle-info">
+
+    <h1>{{ producto.nombre }}</h1>
+
+    <p *ngIf="producto.texto">
+      {{ producto.texto }}
+    </p>
+
+    <p class="descripcion">
+      {{ producto.descripcion }}
+    </p>
+
+    <!-- SELECTOR DE COLORES -->
+    <div
+      class="selector-colores"
+      *ngIf="producto.variantesColor?.length"
+    >
+
+      <p>
+        Color:
+        <strong>
+          {{ producto.colorSeleccionado || 'Selecciona un color' }}
+        </strong>
+      </p>
+
+      <div class="opciones-colores">
+
+        <button
+          type="button"
+          class="opcion-color"
+          *ngFor="let variante of producto.variantesColor; let i = index"
+          [class.seleccionado]="esVarianteActiva(producto, i)"
+          [style.background-color]="obtenerColorCSS(variante.color)"
+          [attr.aria-label]="'Seleccionar color ' + variante.color"
+          [attr.aria-pressed]="esVarianteActiva(producto, i)"
+          [title]="variante.color"
+          (click)="seleccionarColor(producto, i)"
+        >
+        </button>
+
+      </div>
+    </div>
+
+    <!-- SELECTOR DE MODALIDAD -->
+    <div
+      class="selector-modalidad"
+      *ngIf="producto.vendeContado && producto.vendeCredito"
+    >
+
+      <p>¿Cómo deseas comprar?</p>
+
+      <label
+        [class.seleccionada]="modalidadSeleccionada === 'contado'"
+      >
+        <input
+          type="radio"
+          name="modalidadDetalle"
+          value="contado"
+          [checked]="modalidadSeleccionada === 'contado'"
+          (change)="seleccionarModalidad('contado')"
+        >
+        <span>De contado</span>
+      </label>
+
+      <label
+        [class.seleccionada]="modalidadSeleccionada === 'credito'"
+      >
+        <input
+          type="radio"
+          name="modalidadDetalle"
+          value="credito"
+          [checked]="modalidadSeleccionada === 'credito'"
+          (change)="seleccionarModalidad('credito')"
+        >
+        <span>A crédito</span>
+      </label>
+
+    </div>
+
+    <!-- PRECIOS -->
+    <div class="precios">
+
+      <!-- PRECIO DE CONTADO -->
+      <div
+        *ngIf="
+          producto.vendeContado &&
+          (!producto.vendeCredito || modalidadSeleccionada === 'contado')
+        "
+      >
+
+        <h3>Precio de contado</h3>
+
+        <p
+          *ngIf="producto.descuento > 0"
+          class="precio-tachado"
+        >
+          {{ precioOriginal(producto) | currency:'COP':'symbol':'1.0-0' }}
+        </p>
+
+        <p class="precio-final">
+          {{ precioFinal(producto, 'contado') | currency:'COP':'symbol':'1.0-0' }}
+        </p>
+
+        <span
+          *ngIf="producto.descuento > 0"
+          class="descuento"
+        >
+          -{{ producto.descuento }}%
+        </span>
+
+      </div>
+
+      <!-- INFORMACIÓN A CRÉDITO -->
+      <div
+        *ngIf="
+          producto.vendeCredito &&
+          (!producto.vendeContado || modalidadSeleccionada === 'credito')
+        "
+      >
+
+        <h3>Precio a crédito</h3>
+
+        <p class="precio-final">
+          {{ precioFinal(producto, 'credito') | currency:'COP':'symbol':'1.0-0' }}
+        </p>
+
+        <p *ngIf="producto.inicial > 0">
+          <strong>Cuota inicial:</strong>
+          {{ producto.inicial | currency:'COP':'symbol':'1.0-0' }}
+        </p>
+
+        <!-- SELECTOR DE FRECUENCIA -->
+        <div
+          class="selector-frecuencia"
+          *ngIf="tieneFrecuenciasDisponibles()"
+        >
+
+          <p>¿Cómo prefieres pagar tus cuotas?</p>
+
+          <div class="opciones-frecuencia">
+
+            <!-- PAGO QUINCENAL -->
+            <label
+              *ngIf="producto.quincenal > 0"
+              class="opcion-frecuencia"
+              [class.seleccionada]="frecuenciaSeleccionada === 'quincenal'"
+            >
+
+              <input
+                type="radio"
+                name="frecuenciaDetalle"
+                value="quincenal"
+                [checked]="frecuenciaSeleccionada === 'quincenal'"
+                (change)="seleccionarFrecuencia('quincenal')"
+              >
+
+              <span>Quincenal</span>
+
+              <small>
+                {{ producto.quincenal | currency:'COP':'symbol':'1.0-0' }}
+
+                <ng-container *ngIf="producto.numeroCuotasQuincenal > 0">
+                  · {{ producto.numeroCuotasQuincenal }} cuotas
+                </ng-container>
+              </small>
+
+            </label>
+
+            <!-- PAGO MENSUAL -->
+            <label
+              *ngIf="producto.mensual > 0"
+              class="opcion-frecuencia"
+              [class.seleccionada]="frecuenciaSeleccionada === 'mensual'"
+            >
+
+              <input
+                type="radio"
+                name="frecuenciaDetalle"
+                value="mensual"
+                [checked]="frecuenciaSeleccionada === 'mensual'"
+                (change)="seleccionarFrecuencia('mensual')"
+              >
+
+              <span>Mensual</span>
+
+              <small>
+                {{ producto.mensual | currency:'COP':'symbol':'1.0-0' }}
+
+                <ng-container *ngIf="producto.numeroCuotasMensual > 0">
+                  · {{ producto.numeroCuotasMensual }} cuotas
+                </ng-container>
+              </small>
+
+            </label>
+
+          </div>
+
+        </div>
+
+        <!-- CUOTA DE LA FRECUENCIA ELEGIDA -->
+        <p *ngIf="obtenerValorCuota(producto) > 0">
+          <strong>Pago {{ obtenerNombreFrecuencia() }}:</strong>
+          {{ obtenerValorCuota(producto) | currency:'COP':'symbol':'1.0-0' }}
+        </p>
+
+        <p *ngIf="obtenerNumeroCuotas(producto) > 0">
+          <strong>Número de cuotas:</strong>
+          {{ obtenerNumeroCuotas(producto) }}
+        </p>
+
+      </div>
+
+    </div>
+
+    <!-- BOTÓN WHATSAPP -->
+    <a
+      [href]="obtenerLinkWhatsApp(producto)"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="btn-whatsapp"
+    >
+      Consultar por WhatsApp
+    </a>
+
+  </div>
+
+</div>

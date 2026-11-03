@@ -1,0 +1,144 @@
+
+<div class="carrito-contenedor">
+
+  <div class="carrito-encabezado">
+    <h1>Mi carrito</h1>
+    <p>Revisa los productos que deseas comprar.</p>
+  </div>
+
+  <ng-container *ngIf="productos$ | async as productos">
+
+    <!-- CARRITO VACÍO -->
+    <div class="carrito-vacio" *ngIf="productos.length === 0">
+      <div class="icono-carrito">🛒</div>
+      <h2>Tu carrito está vacío</h2>
+      <p>Agrega algunos productos para comenzar tu compra.</p>
+
+      <a routerLink="/productos" class="btn-seguir">
+        Ver productos
+      </a>
+    </div>
+
+    <!-- PRODUCTOS DEL CARRITO -->
+    <div class="carrito-contenido" *ngIf="productos.length > 0">
+
+      <div class="lista-carrito">
+
+        <article class="producto-carrito" *ngFor="let producto of productos">
+
+          <img
+            [src]="producto.imagen"
+            [alt]="producto.nombre"
+          />
+
+          <div class="producto-datos">
+
+            <h3>{{ producto.nombre }}</h3>
+
+            <p>Color: {{ producto.color || 'No especificado' }}</p>
+
+            <p>
+              Modalidad:
+              {{ producto.modalidad === 'contado' ? 'Contado' : 'Crédito' }}
+            </p>
+
+            <p class="precio">
+              {{ formatearPrecio(producto.precio) }}
+            </p>
+
+            <div *ngIf="producto.modalidad === 'credito'" class="datos-credito">
+              <p>Inicial: {{ formatearPrecio(producto.inicial) }}</p>
+              <p>
+                Cuota {{ producto.frecuencia }}:
+                {{ formatearPrecio(producto.valorCuota) }}
+              </p>
+              <p>Número de cuotas: {{ producto.numeroCuotas }}</p>
+            </div>
+
+            <div class="cantidad">
+
+              <span>Cantidad:</span>
+
+              <button
+                type="button"
+                (click)="cambiarCantidad(producto, producto.cantidad - 1)"
+                [disabled]="producto.cantidad <= 1"
+              >
+                −
+              </button>
+
+              <strong>{{ producto.cantidad }}</strong>
+
+              <button
+                type="button"
+                (click)="cambiarCantidad(producto, producto.cantidad + 1)"
+              >
+                +
+              </button>
+
+            </div>
+
+            <button
+              type="button"
+              class="btn-eliminar"
+              (click)="eliminar(producto)"
+            >
+              Eliminar
+            </button>
+
+          </div>
+
+          <div class="subtotal">
+            <span>Subtotal</span>
+            <strong>
+              {{ formatearPrecio(producto.precio * producto.cantidad) }}
+            </strong>
+          </div>
+
+        </article>
+
+      </div>
+
+      <!-- RESUMEN DE COMPRA -->
+      <aside class="resumen-carrito">
+
+        <h2>Resumen del pedido</h2>
+
+        <p>
+          Productos:
+          <strong>{{ obtenerCantidad() }}</strong>
+        </p>
+
+        <div class="total-carrito">
+          <span>Total:</span>
+          <strong>{{ formatearPrecio(obtenerTotal()) }}</strong>
+        </div>
+
+        <a
+          class="btn-whatsapp"
+          [href]="obtenerLinkWhatsApp()"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Confirmar pedido por WhatsApp
+        </a>
+
+        <button
+          type="button"
+          class="btn-vaciar"
+          (click)="vaciarCarrito()"
+        >
+          Vaciar carrito
+        </button>
+
+        <a routerLink="/productos" class="seguir-comprando">
+          Seguir comprando
+        </a>
+
+      </aside>
+
+    </div>
+
+  </ng-container>
+
+</div>

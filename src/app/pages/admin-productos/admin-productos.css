@@ -1,0 +1,436 @@
+
+/* ================================
+   CONTENEDOR PRINCIPAL
+================================ */
+
+
+.contenedor {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+ margin-top: 9rem !important;
+ margin-bottom: 2rem;
+  width: 70%;
+  min-height: 100vh;
+
+  margin-left: auto;
+  margin-right: auto;
+
+  padding: 0;
+  box-sizing: border-box;
+  background-color: #ffffff;
+}
+
+.admin-productos {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+  box-sizing: border-box;
+  color: #263445;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: #ffffff;
+}
+
+.admin-productos h2 {
+  margin: 0 0 24px;
+  color: #17365c;
+  font-size: 28px;
+  font-weight: 700;
+}
+
+.admin-productos h3 {
+  margin: 24px 0 16px;
+  color: #17365c;
+  font-size: 21px;
+  font-weight: 700;
+}
+
+.admin-productos h4 {
+  margin: 0 0 18px;
+  color: #17365c;
+  font-size: 17px;
+}
+
+.admin-productos p {
+  line-height: 1.5;
+}
+
+.admin-productos hr {
+  margin: 28px 0;
+  border: 0;
+  border-top: 1px solid #dce3eb;
+}
+
+/* ================================
+   FORMULARIO
+================================ */
+
+.admin-productos form {
+  width: 100%;
+  background-color: #ffffff;
+}
+
+.admin-productos .campo {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-bottom: 18px;
+  min-width: 0;
+}
+
+.admin-productos .campo label {
+  color: #34465a;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-productos input:not([type="checkbox"]),
+.admin-productos select,
+.admin-productos textarea {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
+  box-sizing: border-box;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  background-color: #ffffff;
+  color: #263445;
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.admin-productos textarea {
+  min-height: 90px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.admin-productos input:focus,
+.admin-productos select:focus,
+.admin-productos textarea:focus {
+  border-color: #2563a6;
+  box-shadow: 0 0 0 3px rgb(37 99 166 / 12%);
+}
+
+.admin-productos input::placeholder,
+.admin-productos textarea::placeholder {
+  color: #94a3b8;
+}
+
+/* ================================
+   OPCIONES DE PAGO
+================================ */
+
+.admin-productos .opciones-pago {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px 24px;
+  margin: 16px 0 22px;
+}
+
+.admin-productos .opciones-pago label {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  color: #34465a;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.admin-productos .opciones-pago input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  margin: 0;
+  accent-color: #1d4f91;
+}
+
+/* ================================
+   COLORES Y GALERÍAS
+================================ */
+
+.admin-productos .ayuda {
+  margin: 0 0 20px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.admin-productos .variante-color {
+  width: 100%;
+  margin: 0 0 22px;
+  padding: 22px;
+  box-sizing: border-box;
+  border: 1px solid #d5dfeb;
+  border-radius: 12px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgb(15 23 42 / 4%);
+}
+
+.admin-productos .variante-color h4 {
+  padding-bottom: 12px;
+  border-bottom: 1px solid #dce3eb;
+}
+
+.admin-productos .variante-color .campo:last-of-type {
+  margin-bottom: 16px;
+}
+
+/* Vista previa de imágenes */
+
+.admin-productos .vista-previa {
+  margin: 18px 0;
+  padding: 14px;
+  border: 1px dashed #b8c7d9;
+  border-radius: 10px;
+  background-color: #ffffff;
+}
+
+.admin-productos .vista-previa p {
+  margin: 0 0 12px;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.admin-productos .vista-previa img {
+  display: block;
+  width: 100%;
+  max-width: 280px;
+  height: 200px;
+  object-fit: contain;
+  margin: 0 auto;
+  border-radius: 6px;
+  background-color: #ffffff;
+}
+
+/* ================================
+   BOTONES
+================================ */
+
+.admin-productos button {
+  min-height: 42px;
+  padding: 10px 16px;
+  border: 0;
+  border-radius: 8px;
+  background-color: #173f70;
+  color: #ffffff;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.admin-productos button:hover:not(:disabled) {
+  background-color: #24588f;
+}
+
+.admin-productos button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.admin-productos button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.admin-productos .acciones-formulario {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.admin-productos .btn-secundario {
+  border: 1px solid #cbd5e1;
+  background-color: #e8edf3;
+  color: #263445;
+}
+
+.admin-productos .btn-secundario:hover:not(:disabled) {
+  background-color: #dbe3ed;
+}
+
+.admin-productos .btn-eliminar {
+  background-color: #b42332;
+  color: #ffffff;
+}
+
+.admin-productos .btn-eliminar:hover:not(:disabled) {
+  background-color: #8f1926;
+}
+
+/* ================================
+   MENSAJE DE ERROR
+================================ */
+
+.admin-productos .mensaje-error {
+  margin: 0 0 20px;
+  padding: 13px 16px;
+  border: 1px solid #f1b7bd;
+  border-radius: 8px;
+  background-color: #fff0f1;
+  color: #a51d2d;
+  font-size: 14px;
+}
+
+/* ================================
+   PRODUCTOS REGISTRADOS
+================================ */
+
+.admin-productos > h3:last-of-type {
+  color: #17365c;
+}
+
+/* Contenedor de la tabla */
+
+.admin-productos .tabla-contenedor {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid #dce3eb;
+  border-radius: 10px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+/* Tabla completa */
+
+.admin-productos .tabla-contenedor table {
+  width: 100%;
+  min-width: 760px;
+  margin: 0;
+  border-collapse: collapse;
+  text-align: left;
+  background-color: #ffffff;
+}
+
+/* Celdas y encabezados */
+
+.admin-productos .tabla-contenedor th,
+.admin-productos .tabla-contenedor td {
+  padding: 13px 14px;
+  border-bottom: 1px solid #e2e8f0;
+  vertical-align: middle;
+  font-size: 13px;
+  background-color: #ffffff;
+}
+
+.admin-productos .tabla-contenedor th {
+  color: #17365c;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.admin-productos .tabla-contenedor td {
+  color: #334155;
+}
+
+/* Filas blancas */
+
+.admin-productos .tabla-contenedor tbody,
+.admin-productos .tabla-contenedor tr {
+  background-color: #ffffff;
+}
+
+.admin-productos .tabla-contenedor tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+/* Evitar cambios de fondo al pasar el cursor */
+
+.admin-productos .tabla-contenedor tbody tr:hover,
+.admin-productos .tabla-contenedor tbody tr:hover td {
+  background-color: #ffffff;
+}
+
+/* Botones de acciones de la tabla */
+
+.admin-productos .acciones-tabla {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.admin-productos .acciones-tabla button {
+  min-height: 34px;
+  padding: 7px 10px;
+  font-size: 12px;
+}
+
+/* ================================
+   DISEÑO RESPONSIVE
+================================ */
+
+@media (max-width: 768px) {
+  .contenedor {
+    width: 100%;
+    padding: 0;
+  }
+
+  .admin-productos {
+    width: 100%;
+    max-width: 100%;
+    padding: 16px;
+  }
+
+  .admin-productos h2 {
+    font-size: 24px;
+  }
+
+  .admin-productos h3 {
+    font-size: 19px;
+  }
+
+  .admin-productos .variante-color {
+    padding: 16px;
+  }
+
+  .admin-productos .acciones-formulario {
+    flex-direction: column;
+  }
+
+  .admin-productos .acciones-formulario button {
+    width: 100%;
+  }
+
+  .admin-productos .vista-previa img {
+    max-width: 100%;
+    height: 180px;
+  }
+
+  .admin-productos .tabla-contenedor {
+    border-radius: 8px;
+  }
+}
+
+@media (max-width: 420px) {
+  .admin-productos {
+    margin-top: 11rem !important;
+    padding: 12px;
+  }
+
+  .admin-productos h2 {
+    font-size: 22px;
+  }
+
+  .admin-productos .variante-color {
+    padding: 12px;
+  }
+
+  .admin-productos input:not([type="checkbox"]),
+  .admin-productos select,
+  .admin-productos textarea {
+    padding: 11px;
+  }
+
+  .admin-productos .opciones-pago {
+    flex-direction: column;
+    gap: 12px;
+  }
+}
+

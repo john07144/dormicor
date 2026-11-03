@@ -1,7 +1,7 @@
 
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { Buscador } from '../../services/buscador';
+import { buscador } from '../../services/buscador';
 
 @Component({
   selector: 'app-navbar',
@@ -13,7 +13,7 @@ export class Navbar {
   sidebarOpen: boolean = false;
 
   constructor(
-    private buscadorservice: Buscador,
+    private buscador: buscador,
     private router: Router
   ) {}
 
@@ -22,10 +22,10 @@ export class Navbar {
   }
 
   buscar(texto: string) {
-    this.buscadorservice.cambiarBuscar(texto);
+    this.buscador.cambiarBuscar(texto);
 
-    if (this.router.url !== '/productoss') {
-      this.router.navigate(['/productoss']);
+    if (this.router.url !== '/productos') {
+      this.router.navigate(['/productos']);
     }
   }
 }

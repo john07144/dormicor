@@ -1,0 +1,357 @@
+
+/* ========================================
+   CONTENEDOR PRINCIPAL
+======================================== */
+
+.admin-banners {
+  max-width: 1250px;
+  margin: 30px auto;
+  padding: 20px;
+  color: #263548;
+}
+
+/* ========================================
+   ENCABEZADO
+======================================== */
+
+.encabezado {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.encabezado h1 {
+  margin: 0 0 8px;
+  font-size: 28px;
+}
+
+.encabezado p {
+  margin: 0;
+  color: #777;
+}
+
+.volver {
+  color: #17477e;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+/* ========================================
+   FORMULARIO
+======================================== */
+
+.formulario,
+.tabla-seccion {
+  background: white;
+  border: 1px solid #e3e7ed;
+  border-radius: 10px;
+  padding: 24px;
+  margin-bottom: 25px;
+}
+
+.titulo-formulario,
+.titulo-tabla {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  margin-bottom: 22px;
+}
+
+.titulo-formulario h2,
+.titulo-tabla h2 {
+  margin: 0 0 6px;
+  font-size: 21px;
+}
+
+.titulo-formulario span {
+  color: #777;
+  font-size: 13px;
+}
+
+.titulo-tabla p {
+  margin: 0;
+  color: #777;
+  font-size: 14px;
+}
+
+/* ========================================
+   CAMPOS
+======================================== */
+
+.campos {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 18px;
+}
+
+.campo label {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.campo select,
+.campo input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px;
+  border: 1px solid #d5dbe3;
+  border-radius: 6px;
+  background: white;
+  font-size: 14px;
+}
+
+.campo select {
+  cursor: pointer;
+}
+
+.campo select:focus,
+.campo input:focus {
+  outline: none;
+  border-color: #17477e;
+}
+
+.campo select:disabled {
+  background: #f1f3f5;
+  cursor: not-allowed;
+}
+
+.campo select option:disabled {
+  color: #aaa;
+}
+
+.campo-enlace input {
+  background: #f5f7fa;
+  color: #17477e;
+}
+
+.campo small {
+  color: #777;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+/* ========================================
+   VISTA PREVIA
+======================================== */
+
+.vista-previa {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 15px;
+  margin: 5px 0 20px;
+  background: #f6f8fb;
+  border: 1px solid #e5eaf0;
+  border-radius: 8px;
+}
+
+.vista-previa img {
+  width: 115px;
+  height: 105px;
+  object-fit: contain;
+}
+
+.datos-preview {
+  min-width: 0;
+}
+
+.datos-preview h3 {
+  margin: 7px 0;
+  font-size: 17px;
+  overflow-wrap: anywhere;
+}
+
+.datos-preview p {
+  margin: 6px 0;
+  font-size: 14px;
+}
+
+.etiqueta-preview {
+  font-size: 11px;
+  color: #17477e;
+  font-weight: 700;
+}
+
+/* ========================================
+   BOTONES DEL FORMULARIO
+======================================== */
+
+.botones-formulario {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.botones-formulario button,
+.acciones-tabla button {
+  padding: 11px 17px;
+  border: none;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-guardar,
+.btn-editar {
+  background: #17477e;
+}
+
+.btn-cancelar,
+.btn-limpiar {
+  background: #777;
+}
+
+.btn-eliminar {
+  background: #c0392b;
+}
+
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.mensaje {
+  margin-top: 15px;
+  font-weight: 600;
+  color: #17477e;
+}
+
+/* ========================================
+   TABLA
+======================================== */
+
+.contador {
+  background: #edf2f7;
+  color: #17477e;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tabla-contenedor {
+  width: 100%;
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  min-width: 950px;
+  border-collapse: collapse;
+}
+
+thead {
+  background: #173d68;
+  color: white;
+}
+
+th,
+td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid #e8e8e8;
+  font-size: 13px;
+}
+
+tbody tr:hover {
+  background: #f7f9fc;
+}
+
+.imagen-tabla {
+  width: 85px;
+  height: 65px;
+  object-fit: contain;
+}
+
+.destino {
+  color: #17477e;
+  font-size: 12px;
+  word-break: break-all;
+}
+
+.acciones-tabla {
+  display: flex;
+  gap: 8px;
+}
+
+.vacio {
+  text-align: center;
+  padding: 35px;
+  color: #888;
+}
+
+/* ========================================
+   RESPONSIVE
+======================================== */
+
+@media (max-width: 650px) {
+
+  .admin-banners {
+    padding: 12px;
+    margin: 15px auto;
+  }
+
+  .encabezado {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .encabezado h1 {
+    font-size: 23px;
+  }
+
+  .campos {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+
+  .formulario,
+  .tabla-seccion {
+    padding: 15px;
+  }
+
+  .titulo-formulario,
+  .titulo-tabla {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .vista-previa {
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .vista-previa img {
+    width: 85px;
+    height: 85px;
+    flex-shrink: 0;
+  }
+
+  .datos-preview {
+    min-width: 0;
+  }
+
+  .datos-preview h3 {
+    font-size: 15px;
+  }
+
+  .botones-formulario button {
+    flex: 1;
+  }
+
+  .tabla-contenedor {
+    overflow-x: auto;
+  }
+}

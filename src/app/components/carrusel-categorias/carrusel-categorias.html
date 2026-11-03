@@ -1,0 +1,36 @@
+
+<div class="contenedor-categorias">
+
+  <button
+    class="flecha"
+    type="button"
+    (click)="moverCarrusel(-1)">
+    &#10094;
+  </button>
+
+  <div class="ventana-categorias">
+    <div
+      class="lista-categorias"
+      [style.transform]="'translateX(-' + desplazamiento + 'px)'">
+
+      <button
+        *ngFor="let categoria of categorias"
+        type="button"
+        class="boton-categoria"
+        (click)="seleccionar(categoria)">
+
+        {{ categoria.nombre }}
+
+      </button>
+
+    </div>
+  </div>
+
+  <button
+    class="flecha"
+    type="button"
+    (click)="moverCarrusel(1)">
+    &#10095;
+  </button>
+
+</div>
