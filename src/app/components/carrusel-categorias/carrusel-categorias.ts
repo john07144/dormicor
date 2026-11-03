@@ -17,13 +17,14 @@ export class CarruselCategorias {
   categorias: { nombre: string; ruta: string }[] = [
     { nombre: 'Colchones', ruta: '/categoria/colchon' },
     { nombre: 'Espaldar', ruta: '/categoria/espaldar' },
+     { nombre: 'Base cama', ruta: '/categoria/basecama' },
     { nombre: 'Armarios', ruta: '/categoria/armario' },
     { nombre: 'Comedores', ruta: '/categoria/comedor' },
     { nombre: 'Peinadores', ruta: '/categoria/peinador' },
     { nombre: 'Salas', ruta: '/categoria/sala' },
     { nombre: 'Camas', ruta: '/categoria/cama' },
     { nombre: 'Almohadas y Más', ruta: '/categoria/almohada' },
-    { nombre: 'Base cama', ruta: '/categoria/basecama' }
+   
   ];
 
   desplazamiento = 0;
