@@ -1,14 +1,14 @@
 {
   "name": "dormicor",
   "version": "0.0.0",
-  "scripts": {
-    "ng": "ng",
-    "start": "ng serve",
-    "build": "ng build",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
-    "serve:ssr:Dormicor": "node dist/Dormicor/server/server.mjs"
-  },
+ "scripts": {
+  "ng": "ng",
+  "start": "ng serve",
+  "build": "ng build && node -e \"require('node:fs').copyFileSync('dist/Dormicor/browser/index.csr.html', 'dist/Dormicor/browser/index.html')\"",
+  "watch": "ng build --watch --configuration development",
+  "test": "ng test",
+  "serve:ssr:Dormicor": "node dist/Dormicor/server/server.mjs"
+},
   "private": true,
   "packageManager": "npm@11.12.1",
   "dependencies": {
