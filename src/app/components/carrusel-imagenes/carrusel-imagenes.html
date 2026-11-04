@@ -15,7 +15,6 @@
 
           <h2>{{ banner.producto.nombre }}</h2>
 
-
           <div
             class="hasta"
             *ngIf="banner.producto.descuento > 0">
@@ -64,7 +63,10 @@
         <img
           [src]="banner.img"
           class="img-b1"
-          [alt]="banner.producto.nombre">
+          [alt]="banner.producto.nombre"
+          loading="eager"
+          decoding="async"
+          fetchpriority="high">
 
       </a>
 
@@ -123,7 +125,10 @@
         <img
           [src]="banner.img"
           class="prod-img"
-          [alt]="banner.producto.nombre">
+          [alt]="banner.producto.nombre"
+          loading="eager"
+          decoding="async"
+          fetchpriority="auto">
 
         <div
           class="badge"
@@ -172,7 +177,6 @@
               </strong>
             </span>
 
-           
             <span>
               Quincenal:
               <strong>
@@ -181,6 +185,7 @@
             </span>
 
           </div>
+
           <span class="btn-white">¡Conócelo!</span>
 
         </div>
@@ -188,7 +193,10 @@
         <img
           [src]="banner.img"
           class="prod-img-large"
-          [alt]="banner.producto.nombre">
+          [alt]="banner.producto.nombre"
+          loading="eager"
+          decoding="async"
+          fetchpriority="auto">
 
         <div
           class="badge big"
@@ -205,10 +213,25 @@
 
   </div>
 
-  <p *ngIf="cargando" class="mensaje-cargando">
+  <!-- MENSAJE SOLO CUANDO TODAVÍA NO HAY BANNERS -->
+  <p
+    *ngIf="cargando && banners.length === 0"
+    class="mensaje-cargando">
+
     Cargando banners...
+
   </p>
 
+  <!-- MENSAJE DE ERROR -->
+  <p
+    *ngIf="errorCarga && banners.length === 0"
+    class="mensaje-cargando">
+
+    {{ errorCarga }}
+
+  </p>
+
+  <!-- BARRA AZUL INFERIOR -->
   <div class="barra-azul">
 
     <a href="/puntos">🎁 Gana 50 <small>›</small></a>
@@ -226,4 +249,3 @@
   </div>
 
 </div>
-

@@ -2,8 +2,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable, of, from } from 'rxjs';
-import { tap, map } from 'rxjs/operators';
+import { Observable, from, firstValueFrom } from 'rxjs';
 
 import {
   addDoc,
@@ -26,67 +25,128 @@ export class Productos1 {
 
   private url = 'http://localhost:3000/productos';
 
-  // CACHÉ DE PRODUCTOS
+  // CACHÉ EN MEMORIA
   private cache: any[] | null = null;
-
-  // EVITAR CONSULTAS SIMULTÁNEAS DE PRODUCTOS
-  private productosEnCarga: Promise<any[]> | null = null;
-
-  // CACHÉ DE BANNERS
   private bannersCache: any[] | null = null;
 
-  // EVITAR CONSULTAS SIMULTÁNEAS DE BANNERS
+  // EVITAR CONSULTAS SIMULTÁNEAS
+  private productosEnCarga: Promise<any[]> | null = null;
   private bannersEnCarga: Promise<any[]> | null = null;
+
+  // CACHÉ PERSISTENTE DEL NAVEGADOR
+  private readonly productosStorageKey = 'dormicor_productos_v1';
+  private readonly bannersStorageKey = 'dormicor_banners_v1';
 
   productoParaVolver: number | null = null;
 
   constructor(private http: HttpClient) {}
 
-  // OBTENER TODOS LOS PRODUCTOS
-  getProductos(): Observable<any[]> {
+  // =========================================
+  // LEER CACHÉ DEL NAVEGADOR
+  // =========================================
 
-    if (this.cache !== null) {
-      return of(this.cache);
+  private leerStorage(clave: string): any[] | null {
+
+    if (typeof window === 'undefined') {
+      return null;
     }
 
-    // API LOCAL
-    if (!DataSource.firebase) {
+    try {
 
-      return this.http.get<any[]>(this.url).pipe(
-        tap(productos => {
-          this.cache = productos;
-        })
-      );
+      const datos = localStorage.getItem(clave);
+
+      if (!datos) return null;
+
+      const resultado = JSON.parse(datos);
+
+      return Array.isArray(resultado) ? resultado : null;
+
+    } catch (error) {
+
+      console.warn('No se pudo leer la caché:', error);
+
+      return null;
 
     }
-
-    // FIREBASE
-    return from(this.obtenerProductos());
   }
 
-  // AGREGAR UN PRODUCTO
-  async agregarProducto(producto: any) {
+  // =========================================
+  // GUARDAR CACHÉ EN EL NAVEGADOR
+  // =========================================
 
-    const productosRef = collection(db, 'productos');
+  private guardarStorage(clave: string, datos: any[]): void {
 
-    const resultado = await addDoc(productosRef, {
-      ...producto
-    });
+    if (typeof window === 'undefined') return;
 
-    this.invalidarCacheProductos();
+    try {
 
-    return resultado.id;
+      localStorage.setItem(clave, JSON.stringify(datos));
+
+    } catch (error) {
+
+      console.warn('No se pudo guardar la caché:', error);
+
+    }
   }
 
-  // OBTENER PRODUCTOS MEDIANTE PROMESA
-  async obtenerProductos(): Promise<any[]> {
+  // =========================================
+  // OBTENER PRODUCTOS GUARDADOS
+  // =========================================
 
-    // UTILIZAR CACHÉ SI YA EXISTE
+  obtenerProductosCacheados(): any[] | null {
+
     if (this.cache !== null) {
       return this.cache;
     }
 
-    // REUTILIZAR CONSULTA SI YA ESTÁ EN CURSO
+    this.cache = this.leerStorage(this.productosStorageKey);
+
+    return this.cache;
+  }
+
+  // =========================================
+  // OBTENER BANNERS GUARDADOS
+  // =========================================
+
+  obtenerBannersCacheados(): any[] | null {
+
+    if (this.bannersCache !== null) {
+      return this.bannersCache;
+    }
+
+    this.bannersCache = this.leerStorage(this.bannersStorageKey);
+
+    return this.bannersCache;
+  }
+
+  // =========================================
+  // OBTENER TODOS LOS PRODUCTOS
+  // =========================================
+
+  getProductos(): Observable<any[]> {
+
+    return from(this.obtenerProductos());
+
+  }
+
+  async obtenerProductos(): Promise<any[]> {
+
+    const guardados = this.obtenerProductosCacheados();
+
+    if (guardados !== null) {
+      return guardados;
+    }
+
+    return this.obtenerProductosActualizados();
+
+  }
+
+  // =========================================
+  // ACTUALIZAR PRODUCTOS DESDE FIREBASE
+  // =========================================
+
+  async obtenerProductosActualizados(): Promise<any[]> {
+
     if (this.productosEnCarga !== null) {
       return this.productosEnCarga;
     }
@@ -95,16 +155,33 @@ export class Productos1 {
 
       try {
 
-        const productosRef = collection(db, 'productos');
+        let productos: any[];
 
-        const snapshot = await getDocs(productosRef);
+        if (!DataSource.firebase) {
 
-        const productos = snapshot.docs.map(documento => ({
-          ...documento.data(),
-          docId: documento.id
-        }));
+          productos = await firstValueFrom(
+            this.http.get<any[]>(this.url)
+          );
+
+        } else {
+
+          const productosRef = collection(db, 'productos');
+
+          const snapshot = await getDocs(productosRef);
+
+          productos = snapshot.docs.map(documento => ({
+            ...documento.data(),
+            docId: documento.id
+          }));
+
+        }
 
         this.cache = productos;
+
+        this.guardarStorage(
+          this.productosStorageKey,
+          productos
+        );
 
         return productos;
 
@@ -117,9 +194,31 @@ export class Productos1 {
     })();
 
     return this.productosEnCarga;
+
   }
 
-  // ELIMINAR UN PRODUCTO
+  // =========================================
+  // AGREGAR PRODUCTO
+  // =========================================
+
+  async agregarProducto(producto: any) {
+
+    const productosRef = collection(db, 'productos');
+
+    const resultado = await addDoc(productosRef, {
+      ...producto
+    });
+
+    this.invalidarCacheProductos();
+
+    return resultado.id;
+
+  }
+
+  // =========================================
+  // ELIMINAR PRODUCTO
+  // =========================================
+
   async eliminarProducto(docId: string) {
 
     if (!docId) {
@@ -131,9 +230,13 @@ export class Productos1 {
     await deleteDoc(productoRef);
 
     this.invalidarCacheProductos();
+
   }
 
-  // EDITAR UN PRODUCTO
+  // =========================================
+  // EDITAR PRODUCTO
+  // =========================================
+
   async editarProducto(docId: string, producto: any) {
 
     if (!docId) {
@@ -145,23 +248,46 @@ export class Productos1 {
     await updateDoc(productoRef, producto);
 
     this.invalidarCacheProductos();
+
   }
 
+  // =========================================
   // INVALIDAR CACHÉ DE PRODUCTOS
+  // =========================================
+
   private invalidarCacheProductos(): void {
+
     this.cache = null;
     this.productosEnCarga = null;
-  }
 
-  // OBTENER CONFIGURACIÓN DE LOS BANNERS
-  async obtenerBanners(): Promise<any[]> {
-
-    // UTILIZAR CACHÉ SI YA EXISTE
-    if (this.bannersCache !== null) {
-      return this.bannersCache;
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem(this.productosStorageKey);
     }
 
-    // REUTILIZAR CONSULTA EN CURSO
+  }
+
+  // =========================================
+  // OBTENER CONFIGURACIÓN DE BANNERS
+  // =========================================
+
+  async obtenerBanners(): Promise<any[]> {
+
+    const guardados = this.obtenerBannersCacheados();
+
+    if (guardados !== null) {
+      return guardados;
+    }
+
+    return this.obtenerBannersActualizados();
+
+  }
+
+  // =========================================
+  // ACTUALIZAR BANNERS DESDE FIREBASE
+  // =========================================
+
+  async obtenerBannersActualizados(): Promise<any[]> {
+
     if (this.bannersEnCarga !== null) {
       return this.bannersEnCarga;
     }
@@ -180,6 +306,11 @@ export class Productos1 {
 
         this.bannersCache = banners;
 
+        this.guardarStorage(
+          this.bannersStorageKey,
+          banners
+        );
+
         return banners;
 
       } finally {
@@ -191,9 +322,13 @@ export class Productos1 {
     })();
 
     return this.bannersEnCarga;
+
   }
 
-  // GUARDAR CONFIGURACIÓN DE LOS BANNERS
+  // =========================================
+  // GUARDAR CONFIGURACIÓN DE BANNERS
+  // =========================================
+
   async guardarBanners(banners: any[]): Promise<void> {
 
     const referencia = doc(db, 'configuracion', 'banners');
@@ -202,8 +337,13 @@ export class Productos1 {
       banners: banners
     });
 
-    // ACTUALIZAR CACHÉ DESPUÉS DE GUARDAR
     this.bannersCache = banners;
+
+    this.guardarStorage(
+      this.bannersStorageKey,
+      banners
+    );
+
   }
 
 }
