@@ -125,7 +125,8 @@ export class Productos1 {
 
   getProductos(): Observable<any[]> {
 
-    return from(this.obtenerProductos());
+    // CONSULTAR PRODUCTOS ACTUALIZADOS
+    return from(this.obtenerProductosActualizados());
 
   }
 
