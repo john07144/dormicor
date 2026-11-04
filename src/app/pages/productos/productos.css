@@ -8,9 +8,8 @@
 .principal {
   width: 100%;
   max-width: 1400px;
-  margin-top: 4.5rem !important;
   margin: 0 auto;
-
+margin-top: 0 !important;
   padding: 20px;
   box-sizing: border-box;
 }
@@ -525,6 +524,7 @@
 
 @media (max-width: 480px) {
   .principal {
+    margin-top: 0 !important;
     padding: 9px;
   }
 

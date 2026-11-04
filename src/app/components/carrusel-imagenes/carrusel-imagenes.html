@@ -15,9 +15,6 @@
 
           <h2>{{ banner.producto.nombre }}</h2>
 
-          <p class="descripcion-producto">
-            {{ banner.producto.descripcion }}
-          </p>
 
           <div
             class="hasta"
@@ -176,8 +173,15 @@
             </span>
 
            
+            <span>
+              Quincenal:
+              <strong>
+                {{ banner.producto.quincenal | currency:'COP':'symbol':'1.0-0' }}
+              </strong>
+            </span>
 
           </div>
+          <span class="btn-white">¡Conócelo!</span>
 
         </div>
 
