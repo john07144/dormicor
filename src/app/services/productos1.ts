@@ -2,7 +2,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable, from, firstValueFrom } from 'rxjs';
+import {
+  Observable,
+  from,
+  firstValueFrom,
+  concat,
+  of
+} from 'rxjs';
 
 import {
   addDoc,
@@ -25,15 +31,24 @@ export class Productos1 {
 
   private url = 'http://localhost:3000/productos';
 
+  // =========================================
   // CACHÉ EN MEMORIA
+  // =========================================
+
   private cache: any[] | null = null;
   private bannersCache: any[] | null = null;
 
+  // =========================================
   // EVITAR CONSULTAS SIMULTÁNEAS
+  // =========================================
+
   private productosEnCarga: Promise<any[]> | null = null;
   private bannersEnCarga: Promise<any[]> | null = null;
 
-  // CACHÉ PERSISTENTE DEL NAVEGADOR
+  // =========================================
+  // CACHÉ DEL NAVEGADOR
+  // =========================================
+
   private readonly productosStorageKey = 'dormicor_productos_v1';
   private readonly bannersStorageKey = 'dormicor_banners_v1';
 
@@ -42,7 +57,7 @@ export class Productos1 {
   constructor(private http: HttpClient) {}
 
   // =========================================
-  // LEER CACHÉ DEL NAVEGADOR
+  // LEER LOCAL STORAGE
   // =========================================
 
   private leerStorage(clave: string): any[] | null {
@@ -55,7 +70,9 @@ export class Productos1 {
 
       const datos = localStorage.getItem(clave);
 
-      if (!datos) return null;
+      if (!datos) {
+        return null;
+      }
 
       const resultado = JSON.parse(datos);
 
@@ -71,12 +88,14 @@ export class Productos1 {
   }
 
   // =========================================
-  // GUARDAR CACHÉ EN EL NAVEGADOR
+  // GUARDAR LOCAL STORAGE
   // =========================================
 
   private guardarStorage(clave: string, datos: any[]): void {
 
-    if (typeof window === 'undefined') return;
+    if (typeof window === 'undefined') {
+      return;
+    }
 
     try {
 
@@ -90,7 +109,7 @@ export class Productos1 {
   }
 
   // =========================================
-  // OBTENER PRODUCTOS GUARDADOS
+  // PRODUCTOS CACHEADOS
   // =========================================
 
   obtenerProductosCacheados(): any[] | null {
@@ -105,7 +124,7 @@ export class Productos1 {
   }
 
   // =========================================
-  // OBTENER BANNERS GUARDADOS
+  // BANNERS CACHEADOS
   // =========================================
 
   obtenerBannersCacheados(): any[] | null {
@@ -120,15 +139,30 @@ export class Productos1 {
   }
 
   // =========================================
-  // OBTENER TODOS LOS PRODUCTOS
+  // OBTENER PRODUCTOS
+  // CACHÉ PRIMERO Y FIREBASE DESPUÉS
   // =========================================
 
   getProductos(): Observable<any[]> {
 
-    // CONSULTAR PRODUCTOS ACTUALIZADOS
+    const guardados = this.obtenerProductosCacheados();
+
+    if (guardados !== null) {
+
+      return concat(
+        of(guardados),
+        from(this.obtenerProductosActualizados())
+      );
+
+    }
+
     return from(this.obtenerProductosActualizados());
 
   }
+
+  // =========================================
+  // OBTENER PRODUCTOS DESDE CACHÉ
+  // =========================================
 
   async obtenerProductos(): Promise<any[]> {
 
@@ -143,7 +177,7 @@ export class Productos1 {
   }
 
   // =========================================
-  // ACTUALIZAR PRODUCTOS DESDE FIREBASE
+  // CONSULTAR PRODUCTOS ACTUALIZADOS
   // =========================================
 
   async obtenerProductosActualizados(): Promise<any[]> {
@@ -259,16 +293,17 @@ export class Productos1 {
   private invalidarCacheProductos(): void {
 
     this.cache = null;
-    this.productosEnCarga = null;
 
     if (typeof window !== 'undefined') {
+
       localStorage.removeItem(this.productosStorageKey);
+
     }
 
   }
 
   // =========================================
-  // OBTENER CONFIGURACIÓN DE BANNERS
+  // OBTENER BANNERS
   // =========================================
 
   async obtenerBanners(): Promise<any[]> {
@@ -284,7 +319,7 @@ export class Productos1 {
   }
 
   // =========================================
-  // ACTUALIZAR BANNERS DESDE FIREBASE
+  // CONSULTAR BANNERS ACTUALIZADOS
   // =========================================
 
   async obtenerBannersActualizados(): Promise<any[]> {
@@ -327,7 +362,7 @@ export class Productos1 {
   }
 
   // =========================================
-  // GUARDAR CONFIGURACIÓN DE BANNERS
+  // GUARDAR BANNERS
   // =========================================
 
   async guardarBanners(banners: any[]): Promise<void> {
