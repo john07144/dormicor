@@ -18,11 +18,12 @@ export class CarruselCategorias {
     { nombre: 'Colchones', ruta: '/categoria/colchon' },
     { nombre: 'Espaldar', ruta: '/categoria/espaldar' },
      { nombre: 'Base cama', ruta: '/categoria/basecama' },
+      { nombre: 'Camas de lujo', ruta: '/categoria/camalujo' },
+       { nombre: 'Camas', ruta: '/categoria/cama' },
     { nombre: 'Armarios', ruta: '/categoria/armario' },
     { nombre: 'Comedores', ruta: '/categoria/comedor' },
     { nombre: 'Peinadores', ruta: '/categoria/peinador' },
     { nombre: 'Salas', ruta: '/categoria/sala' },
-    { nombre: 'Camas', ruta: '/categoria/cama' },
     { nombre: 'Almohadas y Más', ruta: '/categoria/almohada' },
    
   ];

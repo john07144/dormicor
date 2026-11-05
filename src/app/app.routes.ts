@@ -5,7 +5,6 @@ import { Inicio } from './pages/inicio/inicio';
 import { Productos } from './pages/productos/productos';
 import { ProductoDetalleComponent } from './pages/producto-detalle/producto-detalle';
 import { carruselImagenes } from './components/carrusel-imagenes/carrusel-imagenes';
-
 import { productsResolver } from './resolvers/products.resolver';
 
 import { Login } from './pages/login/login';
