@@ -171,15 +171,15 @@
 .b4 .info {
   position: relative;
   z-index: 2;
-  width: 55%;
-  max-width: 55%;
+  width: 40%;
+  max-width: 40%;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
 }
 
 .b4 .titulo {
-  font-size: 26px;
+  font-size: 30px;
 }
 
 .b4 .descripcion-producto {
@@ -218,8 +218,8 @@
 .b4 .prod-img-large {
   position: absolute;
   z-index: 1;
-  width: 48%;
-  height: 98%;
+  width: 58%;
+  height: 100%;
   right: 0;
   bottom: 0;
   top: 0;
