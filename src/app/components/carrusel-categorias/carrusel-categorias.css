@@ -1,12 +1,19 @@
-
 .contenedor-categorias {
-  display:flex;
+  display: flex;
   align-items: center;
   justify-content: center;
   width: 100%;
   padding: 0;
   margin: 0;
   box-sizing: border-box;
+
+  /* FIJO DEBAJO DEL NAV */
+  position: fixed;
+  top: 82px;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+  background: #ffffff;
 }
 
 .ventana-categorias {
@@ -65,15 +72,33 @@
   background: #dddddd;
 }
 
-/* RESPONSIVE: DESLIZAMIENTO CON EL DEDO */
+
+/* =================================
+   RESPONSIVE: DESLIZAMIENTO CON DEDO
+================================= */
+
 @media (max-width: 600px) {
 
   .contenedor-categorias {
+    position: fixed;
+    top: 112px;
+    left: 0;
+    right: 0;
+    width: 100%;
+    min-height: 40px;
+    display: flex;
     gap: 0;
+    z-index: 9999;
+    background: #ffffff;
+    visibility: visible;
+    opacity: 1;
   }
 
   .ventana-categorias {
+    display: block;
     width: 100%;
+    flex: 1;
+    min-width: 0;
     overflow-x: auto;
     overflow-y: hidden;
     scrollbar-width: none;
@@ -86,7 +111,10 @@
   }
 
   .lista-categorias {
+    display: flex;
+    align-items: center;
     justify-content: flex-start;
+    gap: 4px;
     width: max-content;
     min-width: 100%;
     transform: none !important;
@@ -94,6 +122,8 @@
   }
 
   .boton-categoria {
+    display: block;
+    flex-shrink: 0;
     padding: 9px 12px;
     font-size: 12px;
   }

@@ -5,11 +5,11 @@ import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { Productos } from '../productos/productos';
 import { carruselImagenes } from '../../components/carrusel-imagenes/carrusel-imagenes';
-
+import { CarruselCategorias } from '../../components/carrusel-categorias/carrusel-categorias';
 @Component({
   selector: 'app-inicio',
-  imports: [CommonModule, FormsModule, RouterModule, carruselImagenes, Productos],
+  imports: [CommonModule, CarruselCategorias, FormsModule, RouterModule, carruselImagenes, Productos],
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
-})
+}) 
 export class Inicio {} 
