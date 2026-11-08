@@ -857,6 +857,19 @@
 
 @media (max-width: 480px) {
 
+  .badge {
+  position: absolute;
+  z-index: 3;
+  top: 2px;
+  right: 12px;
+  width: 38px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fbfaf8;
+  color: #515152;
+  
+}
+
   .grid-banners {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-template-rows: 140px 100px 140px;
