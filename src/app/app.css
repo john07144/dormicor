@@ -1,9 +1,9 @@
-.app-container {
+.container {
   margin-top: 5.3rem;
 }
 
 @media (max-width: 480px) {
-  .app-container {
+  .container {
     margin-top: 6.5rem !important;
   }
 
