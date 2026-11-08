@@ -12,4 +12,4 @@ import { carruselImagenes } from '../../components/carrusel-imagenes/carrusel-im
   templateUrl: './inicio.html',
   styleUrl: './inicio.css',
 })
-export class Inicio {}
+export class Inicio {} 

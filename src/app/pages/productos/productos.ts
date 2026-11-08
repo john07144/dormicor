@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
-
+import { CarruselCategorias } from '../../components/carrusel-categorias/carrusel-categorias';
 import { Productos1 } from '../../services/productos1';
 import { buscador } from '../../services/buscador';
 import { Carrito } from '../../services/carrito';
@@ -22,12 +22,12 @@ interface VarianteColor {
   imagen: string;
   imagenes: string[];
   imagenesTexto?: string;
-}
+} 
 
 @Component({
   selector: 'app-productos',
   standalone: true,
-  imports: [CommonModule, RouterModule],
+  imports: [CommonModule, RouterModule, CarruselCategorias],
   templateUrl: './productos.html',
   styleUrl: './productos.css'
 })

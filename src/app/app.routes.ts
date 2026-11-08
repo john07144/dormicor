@@ -6,7 +6,7 @@ import { Productos } from './pages/productos/productos';
 import { ProductoDetalleComponent } from './pages/producto-detalle/producto-detalle';
 import { carruselImagenes } from './components/carrusel-imagenes/carrusel-imagenes';
 import { productsResolver } from './resolvers/products.resolver';
-
+import { CarruselCategorias } from './components/carrusel-categorias/carrusel-categorias';
 import { Login } from './pages/login/login';
 import { authGuard } from './guards/auth-guard';
 import { Admin } from './pages/admin/admin';
@@ -54,6 +54,12 @@ export const routes: Routes = [
   {
     path: 'carrito',
     component: CarritoPage
+  },
+
+
+   {
+    path: 'carrusel-categoria',
+    component: CarruselCategorias
   },
 
   // CARRUSEL DE IMÁGENES
