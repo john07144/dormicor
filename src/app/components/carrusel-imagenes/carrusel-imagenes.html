@@ -28,8 +28,26 @@
 
           </div>
 
-          <div class="precio">
-            {{ banner.precio | currency:'COP':'symbol':'1.0-0' }}
+          <!-- PRECIOS -->
+          <div class="bloque-precios">
+
+            <span
+              class="precio-anterior"
+              *ngIf="banner.producto.descuento > 0">
+
+              {{ banner.precio | currency:'COP':'symbol':'1.0-0' }}
+
+            </span>
+
+            <div class="precio">
+              {{
+                (banner.producto.descuento > 0
+                  ? banner.precio * (1 - banner.producto.descuento / 100)
+                  : banner.precio)
+                  | currency:'COP':'symbol':'1.0-0'
+              }}
+            </div>
+
           </div>
 
           <small class="modalidad-precio">
@@ -88,13 +106,31 @@
             {{ banner.producto.descripcion }}
           </p>
 
-          <span
-            class="precio"
-            [class.amarillo]="banner.id === 3">
+          <!-- PRECIOS -->
+          <div class="bloque-precios">
 
-            {{ banner.precio | currency:'COP':'symbol':'1.0-0' }}
+            <span
+              class="precio-anterior"
+              *ngIf="banner.producto.descuento > 0">
 
-          </span>
+              {{ banner.precio | currency:'COP':'symbol':'1.0-0' }}
+
+            </span>
+
+            <span
+              class="precio"
+              [class.amarillo]="banner.id === 3">
+
+              {{
+                (banner.producto.descuento > 0
+                  ? banner.precio * (1 - banner.producto.descuento / 100)
+                  : banner.precio)
+                  | currency:'COP':'symbol':'1.0-0'
+              }}
+
+            </span>
+
+          </div>
 
           <small class="modalidad-precio">
             {{ banner.tipoPrecio === 'credito' ? 'A CRÉDITO' : 'DE CONTADO' }}
@@ -158,9 +194,29 @@
             {{ banner.producto.descripcion }}
           </p>
 
-          <span class="precio blanco">
-            {{ banner.precio | currency:'COP':'symbol':'1.0-0' }}
-          </span>
+          <!-- PRECIOS -->
+          <div class="bloque-precios">
+
+            <span
+              class="precio-anterior"
+              *ngIf="banner.producto.descuento > 0">
+
+              {{ banner.precio | currency:'COP':'symbol':'1.0-0' }}
+
+            </span>
+
+            <span class="precio blanco">
+
+              {{
+                (banner.producto.descuento > 0
+                  ? banner.precio * (1 - banner.producto.descuento / 100)
+                  : banner.precio)
+                  | currency:'COP':'symbol':'1.0-0'
+              }}
+
+            </span>
+
+          </div>
 
           <small class="modalidad-precio">
             {{ banner.tipoPrecio === 'credito' ? 'A CRÉDITO' : 'DE CONTADO' }}
@@ -234,14 +290,13 @@
   <!-- BARRA AZUL INFERIOR -->
   <div class="barra-azul">
 
-    <a href="/camaslujo"> camas de lujo <small>›</small></a>
+    <a href="/camaslujo">camas de lujo <small>›</small></a>
 
     <a href="/tabla-envios">🚚 Envío Gratis <small>en Risaralda ›</small></a>
 
     <a href="/financiacion"><b>financiacion</b><small>›</small></a>
 
-    <a href="/sobrenosotros">sobre nosotros<small>›</small></a>
-
+    <a href="/sobrenosotros">sobre nosotros <small>›</small></a>
 
   </div>
 
