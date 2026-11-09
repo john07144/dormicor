@@ -1,7 +1,5 @@
 
-/* ========================================
-   CONTENEDOR PRINCIPAL
-======================================== */
+/*CONTENEDOR PRINCIPAL*/
 
 .admin-banners {
   max-width: 1250px;
@@ -10,9 +8,7 @@
   color: #263548;
 }
 
-/* ========================================
-   ENCABEZADO
-======================================== */
+/*ENCABEZADO*/
 
 .encabezado {
   display: flex;
@@ -38,9 +34,7 @@
   font-weight: 600;
 }
 
-/* ========================================
-   FORMULARIO
-======================================== */
+/*FORMULARIO*/
 
 .formulario,
 .tabla-seccion {

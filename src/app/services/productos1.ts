@@ -361,10 +361,10 @@ export class Productos1 {
 
   }
 
+
   
-  // =========================================
   // GUARDAR BANNERS
-  // =========================================
+ 
 
   async guardarBanners(banners: any[]): Promise<void> {
 
