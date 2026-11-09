@@ -1,13 +1,19 @@
 
-import { Injectable } from '@angular/core';
+import {
+  Injectable,
+  Inject,
+  PLATFORM_ID,
+  TransferState,
+  makeStateKey
+} from '@angular/core';
+
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 
 import {
   Observable,
   from,
-  firstValueFrom,
-  concat,
-  of
+  firstValueFrom
 } from 'rxjs';
 
 import {
@@ -18,11 +24,18 @@ import {
   doc,
   getDoc,
   setDoc,
-  collection
+  collection,
+  query,
+  where,
+  limit
 } from 'firebase/firestore';
 
 import { db } from '../config/firebase';
 import { DataSource } from '../config/data-source';
+
+// DATOS TRANSFERIDOS DEL SERVIDOR AL NAVEGADOR.
+const PRODUCTOS_TRANSFER_KEY =
+  makeStateKey<any[]>('dormicor_productos_transfer');
 
 @Injectable({
   providedIn: 'root'
@@ -54,7 +67,11 @@ export class Productos1 {
 
   productoParaVolver: number | null = null;
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private transferState: TransferState,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   // =========================================
   // LEER LOCAL STORAGE
@@ -62,7 +79,7 @@ export class Productos1 {
 
   private leerStorage(clave: string): any[] | null {
 
-    if (typeof window === 'undefined') {
+    if (!isPlatformBrowser(this.platformId)) {
       return null;
     }
 
@@ -83,7 +100,6 @@ export class Productos1 {
       console.warn('No se pudo leer la caché:', error);
 
       return null;
-
     }
   }
 
@@ -93,7 +109,7 @@ export class Productos1 {
 
   private guardarStorage(clave: string, datos: any[]): void {
 
-    if (typeof window === 'undefined') {
+    if (!isPlatformBrowser(this.platformId)) {
       return;
     }
 
@@ -104,7 +120,6 @@ export class Productos1 {
     } catch (error) {
 
       console.warn('No se pudo guardar la caché:', error);
-
     }
   }
 
@@ -139,25 +154,161 @@ export class Productos1 {
   }
 
   // =========================================
-  // OBTENER PRODUCTOS
-  // CACHÉ PRIMERO Y FIREBASE DESPUÉS
+  // OBTENER PRODUCTOS PARA RESOLVER Y SSR
   // =========================================
 
   getProductos(): Observable<any[]> {
 
-    const guardados = this.obtenerProductosCacheados();
+    return from(this.obtenerProductosParaVista());
 
-    if (guardados !== null) {
+  }
 
-      return concat(
-        of(guardados),
-        from(this.obtenerProductosActualizados())
-      );
+  // =========================================
+  // OBTENER UN SOLO PRODUCTO POR SU ID
+  // =========================================
 
+  getProductoPorId(id: string): Observable<any | null> {
+
+    return from(this.obtenerProductoPorId(id));
+
+  }
+
+  private async obtenerProductoPorId(
+    id: string
+  ): Promise<any | null> {
+
+    if (!id) {
+      return null;
     }
 
-    return from(this.obtenerProductosActualizados());
+    const PRODUCTO_KEY = makeStateKey<any>(
+      `dormicor_producto_${id}`
+    );
 
+    // REUTILIZAR DATOS TRANSFERIDOS DURANTE SSR
+
+    if (this.transferState.hasKey(PRODUCTO_KEY)) {
+
+      const producto = this.transferState.get(
+        PRODUCTO_KEY,
+        null
+      );
+
+      if (isPlatformBrowser(this.platformId)) {
+        this.transferState.remove(PRODUCTO_KEY);
+      }
+
+      return producto;
+    }
+
+    let producto: any | null = null;
+
+    if (!DataSource.firebase) {
+
+      producto = await firstValueFrom(
+        this.http.get<any>(
+          `${this.url}/${encodeURIComponent(id)}`
+        )
+      );
+
+    } else {
+
+      // PRIMERO: BUSCAR DIRECTAMENTE POR ID DEL DOCUMENTO
+
+      const referencia = doc(db, 'productos', id);
+
+      const documento = await getDoc(referencia);
+
+      if (documento.exists()) {
+
+        producto = {
+          ...documento.data(),
+          docId: documento.id
+        };
+
+      } else {
+
+        // SEGUNDO: BUSCAR POR EL CAMPO PERSONALIZADO id
+
+        const productosRef = collection(db, 'productos');
+
+        let consulta = query(
+          productosRef,
+          where('id', '==', id),
+          limit(1)
+        );
+
+        let resultado = await getDocs(consulta);
+
+        // ADMITIR id GUARDADO COMO NÚMERO
+
+        if (resultado.empty && !isNaN(Number(id))) {
+
+          consulta = query(
+            productosRef,
+            where('id', '==', Number(id)),
+            limit(1)
+          );
+
+          resultado = await getDocs(consulta);
+        }
+
+        if (!resultado.empty) {
+
+          const encontrado = resultado.docs[0];
+
+          producto = {
+            ...encontrado.data(),
+            docId: encontrado.id
+          };
+
+        }
+      }
+    }
+
+    // TRANSFERIR RESULTADO PARA LA HIDRATACIÓN
+
+    this.transferState.set(
+      PRODUCTO_KEY,
+      producto
+    );
+
+    return producto;
+  }
+
+  // =========================================
+  // OBTENER PRODUCTOS PARA LA VISTA
+  // =========================================
+
+  private async obtenerProductosParaVista(): Promise<any[]> {
+
+    if (this.transferState.hasKey(PRODUCTOS_TRANSFER_KEY)) {
+
+      const productos =
+        this.transferState.get(PRODUCTOS_TRANSFER_KEY, []);
+
+      this.cache = productos;
+
+      this.guardarStorage(
+        this.productosStorageKey,
+        productos
+      );
+
+      if (isPlatformBrowser(this.platformId)) {
+        this.transferState.remove(PRODUCTOS_TRANSFER_KEY);
+      }
+
+      return productos;
+    }
+
+    const productos = await this.obtenerProductosActualizados();
+
+    this.transferState.set(
+      PRODUCTOS_TRANSFER_KEY,
+      productos
+    );
+
+    return productos;
   }
 
   // =========================================
@@ -173,7 +324,6 @@ export class Productos1 {
     }
 
     return this.obtenerProductosActualizados();
-
   }
 
   // =========================================
@@ -229,7 +379,6 @@ export class Productos1 {
     })();
 
     return this.productosEnCarga;
-
   }
 
   // =========================================
@@ -247,7 +396,6 @@ export class Productos1 {
     this.invalidarCacheProductos();
 
     return resultado.id;
-
   }
 
   // =========================================
@@ -265,7 +413,6 @@ export class Productos1 {
     await deleteDoc(productoRef);
 
     this.invalidarCacheProductos();
-
   }
 
   // =========================================
@@ -283,7 +430,6 @@ export class Productos1 {
     await updateDoc(productoRef, producto);
 
     this.invalidarCacheProductos();
-
   }
 
   // =========================================
@@ -294,12 +440,15 @@ export class Productos1 {
 
     this.cache = null;
 
-    if (typeof window !== 'undefined') {
+    if (isPlatformBrowser(this.platformId)) {
 
-      localStorage.removeItem(this.productosStorageKey);
+      try {
+        localStorage.removeItem(this.productosStorageKey);
+      } catch (error) {
+        console.warn('No se pudo eliminar la caché:', error);
+      }
 
     }
-
   }
 
   // =========================================
@@ -315,7 +464,6 @@ export class Productos1 {
     }
 
     return this.obtenerBannersActualizados();
-
   }
 
   // =========================================
@@ -358,13 +506,11 @@ export class Productos1 {
     })();
 
     return this.bannersEnCarga;
-
   }
 
-
-  
+  // =========================================
   // GUARDAR BANNERS
- 
+  // =========================================
 
   async guardarBanners(banners: any[]): Promise<void> {
 
@@ -380,7 +526,6 @@ export class Productos1 {
       this.bannersStorageKey,
       banners
     );
-
   }
 
 }

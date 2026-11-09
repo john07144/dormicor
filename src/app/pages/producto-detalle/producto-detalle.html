@@ -3,31 +3,46 @@
 
   <!-- GALERÍA DE IMÁGENES -->
   <div class="detalle-galeria">
+
     <div class="miniaturas-vertical">
 
-      <button type="button" class="volver" (click)="volver()">
+      <button
+        type="button"
+        class="volver"
+        (click)="volver()"
+      >
         Volver
       </button>
 
       <img
-        *ngFor="let img of producto.imagenes || []"
+        *ngFor="let img of producto.imagenes || []; let i = index"
         [src]="img"
-        [alt]="producto.nombre"
+        [alt]="producto.nombre + ' - imagen ' + (i + 1)"
         loading="lazy"
+        decoding="async"
+        width="90"
+        height="90"
         (click)="cambiarImagen(producto, img)"
         [class.activa]="img === producto.imagenActiva"
+        [attr.aria-label]="'Ver imagen ' + (i + 1) + ' de ' + producto.nombre"
       >
 
     </div>
 
     <!-- IMAGEN PRINCIPAL -->
     <div class="imagen-principal">
+
       <img
         [src]="producto.imagenActiva || producto.imagen"
         [alt]="producto.nombre"
-        loading="lazy"
+        fetchpriority="high"
+        decoding="async"
+        width="800"
+        height="800"
       >
+
     </div>
+
   </div>
 
   <!-- INFORMACIÓN DEL PRODUCTO -->
@@ -72,6 +87,7 @@
         </button>
 
       </div>
+
     </div>
 
     <!-- SELECTOR DE MODALIDAD -->
@@ -85,6 +101,7 @@
       <label
         [class.seleccionada]="modalidadSeleccionada === 'contado'"
       >
+
         <input
           type="radio"
           name="modalidadDetalle"
@@ -92,12 +109,15 @@
           [checked]="modalidadSeleccionada === 'contado'"
           (change)="seleccionarModalidad('contado')"
         >
+
         <span>De contado</span>
+
       </label>
 
       <label
         [class.seleccionada]="modalidadSeleccionada === 'credito'"
       >
+
         <input
           type="radio"
           name="modalidadDetalle"
@@ -105,7 +125,9 @@
           [checked]="modalidadSeleccionada === 'credito'"
           (change)="seleccionarModalidad('credito')"
         >
+
         <span>A crédito</span>
+
       </label>
 
     </div>
@@ -252,7 +274,7 @@
       rel="noopener noreferrer"
       class="btn-whatsapp"
     >
-      Consultar por WhatsApp
+      Comprar por WhatsApp
     </a>
 
   </div>

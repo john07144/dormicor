@@ -13,7 +13,6 @@ import { Admin } from './pages/admin/admin';
 import { AdminProductos } from './pages/admin-productos/admin-productos';
 import { AdminBanners } from './pages/admin-banners/admin-banners';
 
-
 // CARRITO
 import { CarritoPage } from './pages/carrito/carrito';
 
@@ -29,7 +28,9 @@ export const routes: Routes = [
   {
     path: 'inicio',
     component: Inicio,
-    resolve: { productos: productsResolver }
+    resolve: {
+      productos: productsResolver
+    }
   },
 
   // DETALLE DE PRODUCTOS
@@ -41,13 +42,19 @@ export const routes: Routes = [
   // LISTADO DE PRODUCTOS
   {
     path: 'productos',
-    component: Productos
+    component: Productos,
+    resolve: {
+      productos: productsResolver
+    }
   },
 
   // CATEGORÍAS
   {
     path: 'categoria/:slug',
-    component: Productos
+    component: Productos,
+    resolve: {
+      productos: productsResolver
+    }
   },
 
   // CARRITO DE COMPRAS
@@ -56,8 +63,8 @@ export const routes: Routes = [
     component: CarritoPage
   },
 
-
-   {
+  // CARRUSEL DE CATEGORÍAS
+  {
     path: 'carrusel-categoria',
     component: CarruselCategorias
   },
@@ -94,4 +101,3 @@ export const routes: Routes = [
   }
 
 ];
-
