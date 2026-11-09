@@ -1,7 +1,6 @@
 
 :host {
   display: block;
-  
   color: #202a35;
 }
 
@@ -9,10 +8,12 @@
   width: 100%;
   max-width: 1400px;
   margin: 0 auto;
-margin-top: 0 !important;
+  margin-top: 0 !important;
   padding: 20px;
   box-sizing: border-box;
 }
+
+/* FILTROS */
 
 .filtros-productos {
   display: flex;
@@ -70,6 +71,8 @@ margin-top: 0 !important;
   border-color: #24649c;
 }
 
+/* GRID DE PRODUCTOS */
+
 .productos-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -97,6 +100,8 @@ margin-top: 0 !important;
   box-shadow: 0 7px 20px rgba(18,39,60,.12);
 }
 
+/* IMAGEN PRINCIPAL */
+
 .producto-imagen {
   position: relative;
   display: flex;
@@ -112,7 +117,22 @@ margin-top: 0 !important;
   background: #fff;
 }
 
-.producto-imagen > img {
+/* ENLACE DE LA IMAGEN */
+
+.producto-imagen > a {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  min-width: 0;
+  min-height: 0;
+  text-decoration: none;
+}
+
+/* IMAGEN DENTRO DEL ENLACE */
+
+.producto-imagen > a img {
   display: block;
   width: 100%;
   height: 100%;
@@ -120,8 +140,9 @@ margin-top: 0 !important;
   max-height: 100%;
   object-fit: contain;
   object-position: center;
-  cursor: pointer;
 }
+
+/* DESCUENTO */
 
 .etiqueta-descuento {
   position: absolute;
@@ -135,6 +156,8 @@ margin-top: 0 !important;
   font-size: 12px;
   font-weight: 700;
 }
+
+/* INFORMACIÓN DEL PRODUCTO */
 
 .producto-info {
   display: flex;
@@ -178,6 +201,8 @@ margin-top: 0 !important;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 3;
 }
+
+/* COLORES */
 
 .selector-colores {
   display: flex;
@@ -239,6 +264,8 @@ margin-top: 0 !important;
   outline-offset: 3px;
 }
 
+/* MINIATURAS */
+
 .miniaturas-producto {
   display: flex;
   flex-wrap: wrap;
@@ -275,6 +302,8 @@ margin-top: 0 !important;
   border-color: #173f68;
   box-shadow: 0 0 0 1px #173f68;
 }
+
+/* MODALIDADES Y FRECUENCIAS */
 
 .modalidades-pago,
 .frecuencias-pago {
@@ -316,6 +345,8 @@ margin-top: 0 !important;
   background: #173f68;
   color: #fff;
 }
+
+/* PRECIOS */
 
 .precios-producto {
   display: flex;
@@ -361,6 +392,8 @@ margin-top: 0 !important;
   overflow-wrap: anywhere;
 }
 
+/* FRECUENCIAS DE PAGO */
+
 .frecuencias-pago {
   margin-top: 4px;
 }
@@ -399,6 +432,8 @@ margin-top: 0 !important;
   overflow-wrap: anywhere;
 }
 
+/* BOTONES DE ACCIÓN */
+
 .acciones-producto {
   display: flex;
   flex-direction: column;
@@ -410,7 +445,8 @@ margin-top: 0 !important;
 }
 
 .btn-detalle,
-.btn-whatsapp {
+.btn-whatsapp,
+.btn-agregar-carrito {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -442,6 +478,15 @@ margin-top: 0 !important;
   background: #102e4d;
 }
 
+.btn-agregar-carrito {
+  background: #102b46;
+  color: #fff;
+}
+
+.btn-agregar-carrito:hover {
+  background: #1b456c;
+}
+
 .btn-whatsapp {
   border-color: #218b52;
   background: #fff;
@@ -451,6 +496,8 @@ margin-top: 0 !important;
 .btn-whatsapp:hover {
   background: #eaf7ef;
 }
+
+/* SIN PRODUCTOS */
 
 .sin-productos {
   width: 100%;
@@ -465,22 +512,10 @@ margin-top: 0 !important;
   font-size: 15px;
 }
 
-.btn-agregar-carrito {
-  background: #102b46;
-  color: white;
-  border: none;
-  border-radius: 7px;
-  padding: 11px 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btn-agregar-carrito:hover {
-  background: #1b456c;
-}
+/* TABLET Y PANTALLAS MEDIANAS */
 
 @media (max-width: 1100px) {
+
   .productos-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 18px;
@@ -497,7 +532,10 @@ margin-top: 0 !important;
   }
 }
 
+/* TABLET */
+
 @media (max-width: 800px) {
+
   .principal {
     padding: 14px;
   }
@@ -522,7 +560,10 @@ margin-top: 0 !important;
   }
 }
 
+/* CELULARES */
+
 @media (max-width: 480px) {
+
   .principal {
     margin-top: 0 !important;
     padding: 9px;
@@ -679,14 +720,18 @@ margin-top: 0 !important;
   }
 
   .btn-detalle,
-  .btn-whatsapp {
+  .btn-whatsapp,
+  .btn-agregar-carrito {
     min-height: 36px;
     padding: 8px 5px;
     font-size: 11px;
   }
 }
 
+/* CELULARES PEQUEÑOS */
+
 @media (max-width: 350px) {
+
   .productos-grid {
     grid-template-columns: minmax(0, 1fr);
   }

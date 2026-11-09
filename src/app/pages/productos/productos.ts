@@ -1,6 +1,6 @@
 
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { ActivatedRoute, RouterModule, Router } from '@angular/router';
 import { CarruselCategorias } from '../../components/carrusel-categorias/carrusel-categorias';
 import { Productos1 } from '../../services/productos1';
@@ -22,7 +22,7 @@ interface VarianteColor {
   imagen: string;
   imagenes: string[];
   imagenesTexto?: string;
-} 
+}
 
 @Component({
   selector: 'app-productos',
@@ -55,7 +55,8 @@ export class Productos implements OnInit {
     private route: ActivatedRoute,
     private buscador: buscador,
     private router: Router,
-    private carrito: Carrito
+    private carrito: Carrito,
+    @Inject(PLATFORM_ID) private platformId: Object
   ) {}
 
   ngOnInit(): void {
@@ -89,194 +90,205 @@ export class Productos implements OnInit {
       }
     });
 
-    this.productos1.getProductos().subscribe({
+    // UTILIZAR LOS PRODUCTOS DEL RESOLVER CUANDO ESTÉN DISPONIBLES.
+    // ASÍ EVITAMOS UNA SEGUNDA CONSULTA EN LA PÁGINA DE INICIO.
 
-      next: data => {
+    const productosResueltos =
+      this.route.snapshot.data['productos'] ??
+      this.route.parent?.snapshot.data['productos'];
 
-        this.productos = data.map(p => {
+    if (Array.isArray(productosResueltos)) {
 
-          const vendeContado =
-            p.vendeContado ??
-            (
-              p.tipo === 'contado' ||
-              p.tipo === 'ambos' ||
-              (!p.tipo && p.precio != null)
-            );
+      this.procesarProductos(productosResueltos);
 
-          const vendeCredito =
-            p.vendeCredito ??
-            (
-              p.tipo === 'credito' ||
-              p.tipo === 'ambos'
-            );
+    } else {
 
-          const precioContado =
-            p.precioContado ??
-            (p.tipo !== 'credito' ? p.precio ?? null : null);
+      // SI NO HAY RESOLVER, CARGAR LOS PRODUCTOS NORMALMENTE.
 
-          const precioCredito =
-            p.precioCredito ??
-            (p.tipo !== 'contado' ? p.precio ?? null : null);
+      this.productos1.getProductos().subscribe({
 
-          const frecuenciaAntigua: Frecuencia =
-            p.frecuenciaPago === 'mensual'
-              ? 'mensual'
-              : 'quincenal';
+        next: data => {
+          this.procesarProductos(data);
+        },
 
-          const variantesColor: VarianteColor[] =
-            Array.isArray(p.variantesColor) &&
-            p.variantesColor.length > 0
+        error: err => {
+          console.error('Error cargando productos', err);
+        }
 
-              ? p.variantesColor.map((v: any) => {
+      });
+    }
+  }
 
-                  const imagenPrincipal =
-                    String(v.imagen ?? '').trim();
+  // PROCESAR Y NORMALIZAR LOS PRODUCTOS.
+  private procesarProductos(data: any[]): void {
 
-                  const adicionales = Array.isArray(v.imagenes)
-                    ? v.imagenes
-                    : String(v.imagenesTexto ?? '')
-                        .split(',')
-                        .map((url: string) => url.trim())
-                        .filter(Boolean);
+    this.productos = data.map(p => {
 
-                  const imagenes = [
-                    ...new Set(
-                      [imagenPrincipal, ...adicionales].filter(Boolean)
-                    )
-                  ];
+      const vendeContado =
+        p.vendeContado ??
+        (
+          p.tipo === 'contado' ||
+          p.tipo === 'ambos' ||
+          (!p.tipo && p.precio != null)
+        );
 
-                  return {
-                    color: String(v.color ?? '').trim(),
-                    imagen: imagenPrincipal,
-                    imagenes,
-                    imagenesTexto: imagenes
-                      .filter(url => url !== imagenPrincipal)
-                      .join(', ')
-                  };
-                })
+      const vendeCredito =
+        p.vendeCredito ??
+        (
+          p.tipo === 'credito' ||
+          p.tipo === 'ambos'
+        );
 
-              : [{
-                  color: String(p.color ?? '').trim(),
-                  imagen: String(p.imagen ?? '').trim(),
-                  imagenes: this.normalizarImagenesAntiguas(p),
-                  imagenesTexto: ''
-                }];
+      const precioContado =
+        p.precioContado ??
+        (p.tipo !== 'credito' ? p.precio ?? null : null);
 
-          const imagenes = Array.isArray(p.imagenes)
-            ? p.imagenes
-            : [];
+      const precioCredito =
+        p.precioCredito ??
+        (p.tipo !== 'contado' ? p.precio ?? null : null);
 
-          const quincenal = Number(p.quincenal ?? 0);
-          const mensual = Number(p.mensual ?? 0);
+      const frecuenciaAntigua: Frecuencia =
+        p.frecuenciaPago === 'mensual'
+          ? 'mensual'
+          : 'quincenal';
 
-          const numeroCuotasQuincenal = Number(
-            p.numeroCuotasQuincenal ??
-            (
-              frecuenciaAntigua === 'quincenal'
-                ? p.numeroCuotas ?? 0
-                : 0
-            )
-          );
+      const variantesColor: VarianteColor[] =
+        Array.isArray(p.variantesColor) &&
+        p.variantesColor.length > 0
 
-          const numeroCuotasMensual = Number(
-            p.numeroCuotasMensual ??
-            (
-              frecuenciaAntigua === 'mensual'
-                ? p.numeroCuotas ?? 0
-                : 0
-            )
-          );
+          ? p.variantesColor.map((v: any) => {
 
-          return {
-            ...p,
-            vendeContado,
-            vendeCredito,
-            precioContado,
-            precioCredito,
-            inicial: Number(p.inicial ?? 0),
-            quincenal,
-            mensual,
-            numeroCuotasQuincenal,
-            numeroCuotasMensual,
-            frecuenciaPago: frecuenciaAntigua,
-            numeroCuotas: Number(p.numeroCuotas ?? 0),
-            variantesColor,
-            imagenes,
-            imagenActiva:
-              p.imagenActiva ||
-              (imagenes.length ? imagenes[0] : p.imagen)
-          };
-        });
+              const imagenPrincipal =
+                String(v.imagen ?? '').trim();
 
-        this.productos.forEach(p => {
+              const adicionales = Array.isArray(v.imagenes)
+                ? v.imagenes
+                : String(v.imagenesTexto ?? '')
+                    .split(',')
+                    .map((url: string) => url.trim())
+                    .filter(Boolean);
 
-          const id = String(p.id ?? p.docId);
+              const imagenes = [
+                ...new Set(
+                  [imagenPrincipal, ...adicionales].filter(Boolean)
+                )
+              ];
 
-          this.varianteSeleccionada[id] = 0;
+              return {
+                color: String(v.color ?? '').trim(),
+                imagen: imagenPrincipal,
+                imagenes,
+                imagenesTexto: imagenes
+                  .filter(url => url !== imagenPrincipal)
+                  .join(', ')
+              };
+            })
 
-          const primeraVariante = p.variantesColor?.[0];
+          : [{
+              color: String(p.color ?? '').trim(),
+              imagen: String(p.imagen ?? '').trim(),
+              imagenes: this.normalizarImagenesAntiguas(p),
+              imagenesTexto: ''
+            }];
 
-          const primeraImagen =
-            primeraVariante?.imagen ||
-            p.imagenActiva ||
-            p.imagen ||
-            '';
+      const imagenes = Array.isArray(p.imagenes)
+        ? p.imagenes
+        : [];
 
-          this.imagenSeleccionada[id] = primeraImagen;
+      const quincenal = Number(p.quincenal ?? 0);
+      const mensual = Number(p.mensual ?? 0);
 
-          if (p.vendeCredito) {
-            this.modalidadProducto[id] = 'credito';
-          } else if (p.vendeContado) {
-            this.modalidadProducto[id] = 'contado';
-          }
+      const numeroCuotasQuincenal = Number(
+        p.numeroCuotasQuincenal ??
+        (
+          frecuenciaAntigua === 'quincenal'
+            ? p.numeroCuotas ?? 0
+            : 0
+        )
+      );
 
-          if (p.mensual > 0 && p.quincenal <= 0) {
-            this.frecuenciaProducto[id] = 'mensual';
-          } else if (
-            p.frecuenciaPago === 'mensual' &&
-            p.mensual > 0
-          ) {
-            this.frecuenciaProducto[id] = 'mensual';
-          } else {
-            this.frecuenciaProducto[id] = 'quincenal';
-          }
-        });
+      const numeroCuotasMensual = Number(
+        p.numeroCuotasMensual ??
+        (
+          frecuenciaAntigua === 'mensual'
+            ? p.numeroCuotas ?? 0
+            : 0
+        )
+      );
 
-        this.colores = Array.from(
-          new Set(
-            this.productos.flatMap(p =>
-              p.variantesColor?.length
-                ? p.variantesColor.map(
-                    (v: VarianteColor) => v.color
-                  )
-                : [p.color]
-            )
-          )
-        ).filter(Boolean);
-
-        this.actualizarProductosFiltrados();
-
-        console.log('========== REVISIÓN DE IMÁGENES ==========');
-
-        this.productos.forEach(p => {
-          console.log('PRODUCTO:', p.nombre);
-          console.log('IMAGEN PRINCIPAL:', p.imagen);
-          console.log('IMAGEN ACTIVA:', p.imagenActiva);
-          console.log('IMÁGENES:', p.imagenes);
-          console.log('VARIANTES:', p.variantesColor);
-          console.log(
-            'IMAGEN QUE SE MUESTRA:',
-            this.obtenerImagenActiva(p)
-          );
-          console.log('------------------------------------------');
-        });
-
-        setTimeout(() => this.restaurarProducto(), 100);
-      },
-
-      error: err => console.error('Error cargando productos', err)
-
+      return {
+        ...p,
+        vendeContado,
+        vendeCredito,
+        precioContado,
+        precioCredito,
+        inicial: Number(p.inicial ?? 0),
+        quincenal,
+        mensual,
+        numeroCuotasQuincenal,
+        numeroCuotasMensual,
+        frecuenciaPago: frecuenciaAntigua,
+        numeroCuotas: Number(p.numeroCuotas ?? 0),
+        variantesColor,
+        imagenes,
+        imagenActiva:
+          p.imagenActiva ||
+          (imagenes.length ? imagenes[0] : p.imagen)
+      };
     });
+
+    this.productos.forEach(p => {
+
+      const id = String(p.id ?? p.docId);
+
+      this.varianteSeleccionada[id] = 0;
+
+      const primeraVariante = p.variantesColor?.[0];
+
+      const primeraImagen =
+        primeraVariante?.imagen ||
+        p.imagenActiva ||
+        p.imagen ||
+        '';
+
+      this.imagenSeleccionada[id] = primeraImagen;
+
+      if (p.vendeCredito) {
+        this.modalidadProducto[id] = 'credito';
+      } else if (p.vendeContado) {
+        this.modalidadProducto[id] = 'contado';
+      }
+
+      if (p.mensual > 0 && p.quincenal <= 0) {
+        this.frecuenciaProducto[id] = 'mensual';
+      } else if (
+        p.frecuenciaPago === 'mensual' &&
+        p.mensual > 0
+      ) {
+        this.frecuenciaProducto[id] = 'mensual';
+      } else {
+        this.frecuenciaProducto[id] = 'quincenal';
+      }
+    });
+
+    this.colores = Array.from(
+      new Set(
+        this.productos.flatMap(p =>
+          p.variantesColor?.length
+            ? p.variantesColor.map(
+                (v: VarianteColor) => v.color
+              )
+            : [p.color]
+        )
+      )
+    ).filter(Boolean);
+
+    this.actualizarProductosFiltrados();
+
+    // RESTAURAR EL DESPLAZAMIENTO SOLO EN EL NAVEGADOR.
+    if (isPlatformBrowser(this.platformId)) {
+      setTimeout(() => this.restaurarProducto(), 100);
+    }
   }
 
   private normalizarCategoria(valor: unknown): string {
@@ -686,6 +698,9 @@ export class Productos implements OnInit {
   }
 
   restaurarProducto(): void {
+
+    // EVITAR ACCEDER AL DOM DURANTE EL SSR.
+    if (!isPlatformBrowser(this.platformId)) return;
 
     const id = this.productos1.productoParaVolver;
 

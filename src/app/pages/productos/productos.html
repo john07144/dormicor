@@ -1,3 +1,4 @@
+
 <app-carrusel-categorias></app-carrusel-categorias>
 
 <div class="principal">
@@ -52,23 +53,32 @@
   <!-- LISTADO DE PRODUCTOS -->
   <ng-container *ngIf="productosFiltrados$ | async as productosLista">
 
-    <div class="productos-grid">
+    <section
+      class="productos-grid"
+      aria-label="Catálogo de camas, colchones y muebles"
+    >
 
       <article
         class="producto-card"
         *ngFor="let producto of productosLista; trackBy: productosId"
         [id]="'producto-' + (producto.id ?? producto.docId)"
+        [attr.aria-label]="producto.nombre"
       >
 
-        <!-- IMAGEN PRINCIPAL -->
+        <!-- IMAGEN PRINCIPAL Y ENLACE AL PRODUCTO -->
         <div class="producto-imagen">
 
-          <img
-            [src]="obtenerImagenActiva(producto)"
-            [alt]="producto.nombre + (obtenerVarianteActiva(producto)?.color ? ' - ' + obtenerVarianteActiva(producto)?.color : '')"
-            loading="lazy"
-            (click)="verDetalle(producto.id ?? producto.docId)"
-          />
+          <a
+            [routerLink]="['/productos', producto.id ?? producto.docId]"
+            [attr.aria-label]="'Ver detalles de ' + producto.nombre"
+          >
+            <img
+              [src]="obtenerImagenActiva(producto)"
+              [alt]="producto.nombre + (obtenerVarianteActiva(producto)?.color ? ' - ' + obtenerVarianteActiva(producto)?.color : '')"
+              loading="lazy"
+              decoding="async"
+            />
+          </a>
 
           <!-- ETIQUETA DE DESCUENTO -->
           <span
@@ -123,6 +133,7 @@
                   [src]="variante.imagen || variante.imagenes[0]"
                   [alt]="variante.color"
                   loading="lazy"
+                  decoding="async"
                 />
               </button>
 
@@ -146,8 +157,9 @@
             >
               <img
                 [src]="imagen"
-                [alt]="producto.nombre"
+                [alt]="'Otra imagen de ' + producto.nombre"
                 loading="lazy"
+                decoding="async"
               />
             </button>
 
@@ -274,13 +286,13 @@
           <!-- BOTONES DE ACCIÓN -->
           <div class="acciones-producto">
 
-            <button
-              type="button"
+            <a
               class="btn-detalle"
-              (click)="verDetalle(producto.id ?? producto.docId)"
+              [routerLink]="['/productos', producto.id ?? producto.docId]"
+              [attr.aria-label]="'Ver producto ' + producto.nombre"
             >
               Ver producto
-            </button>
+            </a>
 
             <button
               type="button"
@@ -305,7 +317,7 @@
 
       </article>
 
-    </div>
+    </section>
 
     <!-- SIN PRODUCTOS -->
     <div
@@ -314,7 +326,6 @@
     >
       <p>No se encontraron productos con esos filtros.</p>
     </div>
-
 
   </ng-container>
 
